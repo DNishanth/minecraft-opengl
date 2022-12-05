@@ -27,20 +27,13 @@ out vec2 v_texCoord;
 //
 // Note: that the syntax nicely matches glm's mat4!
 //
-uniform mat4 modelTransformMatrix;
-uniform mat4 projectionMatrix;
+uniform mat4 model;
+uniform mat4 view;
+uniform mat4 projection;
 
 void main()
 {
-  // gl_Position is a special glsl variable that tells us what
-  // position to put things in.
-  // It takes in exactly 4 things.
-  // Note that 'w' (the 4th dimension) should be 1.
-  vec4 oldPosition = vec4(position.x, position.y, position.z, 1.0f);
-  vec4 newPositon = modelTransformMatrix * oldPosition;
-  vec4 projectedPosition = projectionMatrix * newPositon;
-
-  gl_Position = projectedPosition;
+  gl_Position = projection * view * model * vec4(position, 1.0f);
 
   // Store the texture coordinaets which we will output to
   // the next stage in the graphics pipeline.

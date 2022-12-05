@@ -1,4 +1,5 @@
 #include "Object.hpp"
+#include "Camera.hpp"
 #include "Error.hpp"
 
 Object::Object() {}
@@ -14,7 +15,7 @@ void Object::MakeTexturedQuad(std::string fileName) {
 	float numRows = 16.0f;
 	float numCols = 16.0f;
 	float rowIdx = 3;
-	float colIdx = 7; // wood plank block
+	float colIdx = 7; // wood plank block, counting from bottom left corner
 	float colIdx2 = 7;
 	float rowIdx2 = 3;
 
@@ -36,40 +37,40 @@ void Object::MakeTexturedQuad(std::string fileName) {
 
 	m_vertices = {
 		// Front face
-		-1.0f, -1.0f,  1.0f,  left_U, bottom_V,
-		1.0f, -1.0f,  1.0f,  right_U, bottom_V,
-		1.0f,  1.0f,  1.0f,  right_U, top_V,
-		-1.0f,  1.0f,  1.0f,  left_U, top_V,
+		-0.5f, -0.5f,  0.5f,  left_U, bottom_V,
+		0.5f, -0.5f,  0.5f,  right_U, bottom_V,
+		0.5f,  0.5f,  0.5f,  right_U, top_V,
+		-0.5f,  0.5f,  0.5f,  left_U, top_V,
 
 		// Back face
-		-1.0f, -1.0f, -1.0f,  left_U, bottom_V,
-		-1.0f,  1.0f, -1.0f,  right_U, bottom_V,
-		1.0f,  1.0f, -1.0f,  right_U, top_V,
-		1.0f, -1.0f, -1.0f,  left_U, top_V,
+		-0.5f, -0.5f, -0.5f,  left_U, bottom_V,
+		-0.5f,  0.5f, -0.5f,  right_U, bottom_V,
+		0.5f,  0.5f, -0.5f,  right_U, top_V,
+		0.5f, -0.5f, -0.5f,  left_U, top_V,
 
 		// Top face
-		-1.0f,  1.0f, -1.0f,  left_U2, bottom_V2,
-		-1.0f,  1.0f,  1.0f,  right_U2, bottom_V2,
-		1.0f,  1.0f,  1.0f,  right_U2, top_V2,
-		1.0f,  1.0f, -1.0f,  left_U2, top_V2,
+		-0.5f,  0.5f, -0.5f,  left_U2, bottom_V2,
+		-0.5f,  0.5f,  0.5f,  right_U2, bottom_V2,
+		0.5f,  0.5f,  0.5f,  right_U2, top_V2,
+		0.5f,  0.5f, -0.5f,  left_U2, top_V2,
 
 		// Bottom face
-		-1.0f, -1.0f, -1.0f,  left_U, bottom_V,
-		1.0f, -1.0f, -1.0f,  right_U, bottom_V,
-		1.0f, -1.0f,  1.0f,  right_U, top_V,
-		-1.0f, -1.0f,  1.0f,  left_U, top_V,
+		-0.5f, -0.5f, -0.5f,  left_U, bottom_V,
+		0.5f, -0.5f, -0.5f,  right_U, bottom_V,
+		0.5f, -0.5f,  0.5f,  right_U, top_V,
+		-0.5f, -0.5f,  0.5f,  left_U, top_V,
 
 		// Right face
-		1.0f, -1.0f, -1.0f,  left_U, bottom_V,
-		1.0f,  1.0f, -1.0f,  right_U, bottom_V,
-		1.0f,  1.0f,  1.0f,  right_U, top_V,
-		1.0f, -1.0f,  1.0f,  left_U, top_V,
+		0.5f, -0.5f, -0.5f,  left_U, bottom_V,
+		0.5f,  0.5f, -0.5f,  right_U, bottom_V,
+		0.5f,  0.5f,  0.5f,  right_U, top_V,
+		0.5f, -0.5f,  0.5f,  left_U, top_V,
 
 		// Left face
-		-1.0f, -1.0f, -1.0f,  left_U, bottom_V,
-		-1.0f, -1.0f,  1.0f,  right_U, bottom_V,
-		-1.0f,  1.0f,  1.0f,  right_U, top_V,
-		-1.0f,  1.0f, -1.0f,  left_U, top_V
+		-0.5f, -0.5f, -0.5f,  left_U, bottom_V,
+		-0.5f, -0.5f,  0.5f,  right_U, bottom_V,
+		-0.5f,  0.5f,  0.5f,  right_U, top_V,
+		-0.5f,  0.5f, -0.5f,  left_U, top_V
 	};
 
 	m_indices = {
@@ -116,10 +117,11 @@ void Object::Update(unsigned int screenWidth, unsigned int screenHeight) {
 	// TODO: In the future this type of operation would be abstracted away
 	//       in a camera class.
 //        modelTransformMatrix = glm::translate(glm::mat4(),glm::vec3(0.0f,0.0f,-1.0f));
-	m_projectionMatrix = glm::perspective(45.0f,(float)screenWidth/(float)screenHeight,0.1f,10.0f);
+	m_projectionMatrix = glm::perspective(45.0f,(float)screenWidth/(float)screenHeight,0.1f,100.0f);
 	// Set the uniforms in our current shader
-	m_shader.SetUniformMatrix4fv("modelTransformMatrix",m_transform.GetTransformMatrix());
-	m_shader.SetUniformMatrix4fv("projectionMatrix", &m_projectionMatrix[0][0]);
+	m_shader.SetUniformMatrix4fv("model",m_transform.GetTransformMatrix());
+    m_shader.SetUniformMatrix4fv("view", &Camera::Instance().GetWorldToViewmatrix()[0][0]);
+	m_shader.SetUniformMatrix4fv("projection", &m_projectionMatrix[0][0]);
 }
 
 void Object::Render() {

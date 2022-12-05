@@ -1,4 +1,5 @@
 #include "SDLGraphicsProgram.hpp"
+#include "Camera.hpp"
 
 #include <iostream>
 #include <string>
@@ -80,8 +81,19 @@ SDLGraphicsProgram::SDLGraphicsProgram(int w, int h):m_screenWidth(w),m_screenHe
 
     // Setup our objects
     m_object = new Object();
-    // Make a textured quad
-    m_object->MakeTexturedQuad("cat3.ppm");
+    m_object2 = new Object();
+    m_object3 = new Object();
+    m_object4 = new Object();
+    m_object5 = new Object();
+    m_object6 = new Object();
+    m_object7 = new Object();
+    m_object->MakeTexturedQuad("");
+    m_object2->MakeTexturedQuad("");
+    m_object3->MakeTexturedQuad("");
+    m_object4->MakeTexturedQuad("");
+    m_object5->MakeTexturedQuad("");
+    m_object6->MakeTexturedQuad("");
+    m_object7->MakeTexturedQuad("");
 }
 
 
@@ -126,9 +138,28 @@ void SDLGraphicsProgram::Update(){
 
     m_object->GetTransform().LoadIdentity();
     m_object->GetTransform().Translate(0.0f,0.0f,-8.0f);
-    m_object->GetTransform().Rotate(rot,0.0f,1.0f,0.0f);
+    // m_object->GetTransform().Rotate(rot,0.0f,1.0f,0.0f);
     // m_object->GetTransform().Scale(2.0f,2.0f,2.0f);
     m_object->Update(m_screenWidth,m_screenHeight);
+
+    m_object2->GetTransform().LoadIdentity();
+    m_object2->GetTransform().Translate(0.0f,0.0f,-8.0f);
+    m_object2->Update(m_screenWidth,m_screenHeight);
+    m_object3->GetTransform().LoadIdentity();
+    m_object3->GetTransform().Translate(-2.0f,0.0f,-8.0f);
+    m_object3->Update(m_screenWidth,m_screenHeight);
+    m_object4->GetTransform().LoadIdentity();
+    m_object4->GetTransform().Translate(4.0f,0.0f,-8.0f);
+    m_object4->Update(m_screenWidth,m_screenHeight);
+    m_object5->GetTransform().LoadIdentity();
+    m_object5->GetTransform().Translate(2.0f,0.0f,-8.0f);
+    m_object5->Update(m_screenWidth,m_screenHeight);
+    m_object6->GetTransform().LoadIdentity();
+    m_object6->GetTransform().Translate(6.0f,0.0f,-8.0f);
+    m_object6->Update(m_screenWidth,m_screenHeight);
+    m_object7->GetTransform().LoadIdentity();
+    m_object7->GetTransform().Translate(0.0f,2.0f,-8.0f);
+    m_object7->Update(m_screenWidth,m_screenHeight);
 }
 
 
@@ -149,6 +180,12 @@ void SDLGraphicsProgram::Render(){
 
     // Render our object
     m_object->Render();
+    m_object2->Render();
+    m_object3->Render();
+    m_object4->Render();
+    m_object5->Render();
+    m_object6->Render();
+    m_object7->Render();
     // Note: This line is equivalent to:
     // (*m_object).Render(); // But the easier style
     // is to use the '->' which dereferences and then
@@ -164,6 +201,7 @@ void SDLGraphicsProgram::Loop(){
     // If this is quit = 'true' then the program terminates.
     bool quit = false;
 	bool showWireframe = false;
+    float cameraSpeed = 0.5f;
     // Event handler that handles various events in SDL
     // that are related to input and output
     SDL_Event e;
@@ -172,18 +210,23 @@ void SDLGraphicsProgram::Loop(){
     // While application is running
     while(!quit){
      	 //Handle events on queue
-		while(SDL_PollEvent( &e ) != 0){
+		while(SDL_PollEvent( &e ) != 0) {
         	// User posts an event to quit
 	        // An example is hitting the "x" in the corner of the window.
-    	    if(e.type == SDL_QUIT){
+    	    if(e.type == SDL_QUIT) {
         		quit = true;
 	        }
+            if(e.type==SDL_MOUSEMOTION) {
+                int mouseX = e.motion.x;
+                int mouseY = e.motion.y;
+                Camera::Instance().MouseLook(mouseX, mouseY);
+            }
 			if (e.type == SDL_KEYDOWN) {
 				switch(e.key.keysym.sym) {
-					case SDLK_p:
-						// quit = true;
+					case SDLK_q:
+						quit = true;
 						break;
-					case SDLK_w:
+					case SDLK_i:
 						if (showWireframe) {
 							glPolygonMode(GL_FRONT_AND_BACK, GL_FILL); // Render filled in
 							showWireframe = false;
@@ -193,6 +236,31 @@ void SDLGraphicsProgram::Loop(){
 							showWireframe = true;
 						}
 						break;
+                    case SDLK_a:
+                        Camera::Instance().MoveLeft(cameraSpeed);
+                        break;
+                    case SDLK_d:
+                        Camera::Instance().MoveRight(cameraSpeed);
+                        break;
+                    case SDLK_w:
+                        Camera::Instance().MoveForward(cameraSpeed);
+                        break;
+                    case SDLK_s:
+                        Camera::Instance().MoveBackward(cameraSpeed);
+                        break;
+                    case SDLK_SPACE:
+                        Camera::Instance().MoveUp(cameraSpeed);
+                        break;
+                    case SDLK_LALT:
+                        Camera::Instance().MoveDown(cameraSpeed);
+                        break;
+                    case SDLK_p:
+                        std::cout << "Position: " 
+                        << Camera::Instance().GetEyeXPosition() << " "
+                        << Camera::Instance().GetEyeYPosition() << " "
+                        << Camera::Instance().GetEyeZPosition() << " "
+                        << std::endl;
+                        break;
 				}
 			}
       	} // End SDL_PollEvent loop.

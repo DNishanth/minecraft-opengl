@@ -25,7 +25,7 @@
 //
 //
 //
-class SDLGraphicsProgram{
+class SDLGraphicsProgram {
 public:
 
     // Constructor
@@ -56,6 +56,11 @@ private:
     // Objects in our scene 
     Object* m_object;
     Object* m_object2;
+    Object* m_object3;
+    Object* m_object4;
+    Object* m_object5;
+    Object* m_object6;
+    Object* m_object7;
 };
 
 #endif
