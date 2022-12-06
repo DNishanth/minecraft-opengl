@@ -96,7 +96,7 @@ float Camera::GetViewZDirection(){
     return m_viewDirection.z;
 }
 
-Camera::Camera(){
+Camera::Camera() {
     std::cout << "Created a Single Camera!\n";
 	// Position us at the origin.
     m_eyePosition = glm::vec3(0.0f,0.0f, 0.0f);

@@ -7,7 +7,7 @@
 
 // The purpose of this class is to store
 // transformations of 3D entities (cameras, objects, etc.)
-class Transform{
+class Transform {
 public:
 
     // Constructor for a new transform

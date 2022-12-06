@@ -17,14 +17,11 @@
 
 // The glad library helps setup OpenGL extensions.
 #include <glad/glad.h>
-
-#include "Object.hpp"
+#include "BlockBuilder.hpp"
+#include "BlockData.hpp"
 
 // Purpose:
 // This class sets up a full graphics program using SDL
-//
-//
-//
 class SDLGraphicsProgram {
 public:
 
@@ -34,6 +31,8 @@ public:
     ~SDLGraphicsProgram();
     // Setup OpenGL
     bool InitGL();
+    // Generate blocks for world
+    void InitWorld();
     // Per frame update
     void Update();
     // Renders shapes to the screen
@@ -50,17 +49,11 @@ private:
     int m_screenWidth;
     int m_screenHeight;
     // The window we'll be rendering to
-    SDL_Window* m_window ;
+    SDL_Window* m_window;
     // OpenGL context
     SDL_GLContext m_openGLContext;
-    // Objects in our scene 
-    Object* m_object;
-    Object* m_object2;
-    Object* m_object3;
-    Object* m_object4;
-    Object* m_object5;
-    Object* m_object6;
-    Object* m_object7;
+    BlockBuilder builder;
+    BlocksArray blocksArray;
 };
 
 #endif

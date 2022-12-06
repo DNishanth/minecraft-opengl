@@ -78,29 +78,15 @@ SDLGraphicsProgram::SDLGraphicsProgram(int w, int h):m_screenWidth(w),m_screenHe
 	// SDL_LogSetAllPriority(SDL_LOG_PRIORITY_WARN); // Uncomment to enable extra debug support!
 	GetOpenGLVersionInfo();
 
-
-    // Setup our objects
-    m_object = new Object();
-    m_object2 = new Object();
-    m_object3 = new Object();
-    m_object4 = new Object();
-    m_object5 = new Object();
-    m_object6 = new Object();
-    m_object7 = new Object();
-    m_object->MakeTexturedQuad("");
-    m_object2->MakeTexturedQuad("");
-    m_object3->MakeTexturedQuad("");
-    m_object4->MakeTexturedQuad("");
-    m_object5->MakeTexturedQuad("");
-    m_object6->MakeTexturedQuad("");
-    m_object7->MakeTexturedQuad("");
+    builder.MakeTexturedQuad("");
+    InitWorld();
 }
 
 
 // Proper shutdown of SDL and destroy initialized objects
-SDLGraphicsProgram::~SDLGraphicsProgram(){
+SDLGraphicsProgram::~SDLGraphicsProgram() {
     // Reclaim all of our objects
-    delete m_object;
+    // delete m_object;
 
     //Destroy window
 	SDL_DestroyWindow( m_window );
@@ -113,12 +99,11 @@ SDLGraphicsProgram::~SDLGraphicsProgram(){
 
 // Initialize OpenGL
 // Setup any of our shaders here.
-bool SDLGraphicsProgram::InitGL(){
+bool SDLGraphicsProgram::InitGL() {
 	//Success flag
 	bool success = true;
 
     // Setup our OpenGL State machine
-    // TODO: Read this
     // The below command is new!
     // What we are doing, is telling opengl to create a depth(or Z-buffer) 
     // for us that is stored every frame.
@@ -128,75 +113,60 @@ bool SDLGraphicsProgram::InitGL(){
 }
 
 
+void SDLGraphicsProgram::InitWorld() {
+    for (int x = 0; x < 16; x++) {
+        for (int y = 0; y < 16; y++) {
+            for (int z = 0; z < 16; z++) {
+                blocksArray.getBlock(x, y, z).isVisible = true;
+                blocksArray.getBlock(x, y, z).blockType = 1;
+                blocksArray.getBlock(x, y, z).m_transform.Translate(x,y,z);
+            }
+        }
+    }
+}
+
+
 // Update OpenGL
-void SDLGraphicsProgram::Update(){
+void SDLGraphicsProgram::Update() {
 
-    static float rot = 0;
-    rot+=0.1;
-    if(rot>360){rot=0;}
-
-
-    m_object->GetTransform().LoadIdentity();
-    m_object->GetTransform().Translate(0.0f,0.0f,-8.0f);
-    // m_object->GetTransform().Rotate(rot,0.0f,1.0f,0.0f);
-    // m_object->GetTransform().Scale(2.0f,2.0f,2.0f);
-    m_object->Update(m_screenWidth,m_screenHeight);
-
-    m_object2->GetTransform().LoadIdentity();
-    m_object2->GetTransform().Translate(0.0f,0.0f,-8.0f);
-    m_object2->Update(m_screenWidth,m_screenHeight);
-    m_object3->GetTransform().LoadIdentity();
-    m_object3->GetTransform().Translate(-2.0f,0.0f,-8.0f);
-    m_object3->Update(m_screenWidth,m_screenHeight);
-    m_object4->GetTransform().LoadIdentity();
-    m_object4->GetTransform().Translate(4.0f,0.0f,-8.0f);
-    m_object4->Update(m_screenWidth,m_screenHeight);
-    m_object5->GetTransform().LoadIdentity();
-    m_object5->GetTransform().Translate(2.0f,0.0f,-8.0f);
-    m_object5->Update(m_screenWidth,m_screenHeight);
-    m_object6->GetTransform().LoadIdentity();
-    m_object6->GetTransform().Translate(6.0f,0.0f,-8.0f);
-    m_object6->Update(m_screenWidth,m_screenHeight);
-    m_object7->GetTransform().LoadIdentity();
-    m_object7->GetTransform().Translate(0.0f,2.0f,-8.0f);
-    m_object7->Update(m_screenWidth,m_screenHeight);
+    // static float rot = 0;
+    // rot+=0.1;
+    // if(rot>360){rot=0;}
+    // for (int x = 0; x < 16; x++) {
+    //     for (int y = 0; y < 16; y++) {
+    //         for (int z = 0; z < 16; z++) {
+    //             if (blocks[x][y][z].isVisible) {
+    //                 blocks[x][y][z].Translate(x,y,z);
+    //             }
+    //         }
+    //     }
+    // }
 }
 
 
 
 // Render
 // The render function gets called once per loop
-void SDLGraphicsProgram::Render(){
+void SDLGraphicsProgram::Render() {
     // Initialize clear color
     // This is the background of the screen.
     glViewport(0, 0, m_screenWidth, m_screenHeight);
-    glClearColor( 0.2f, 0.2f, 0.2f, 1.f );
-    // TODO: Read this
+    glClearColor(0.2f, 0.2f, 0.2f, 1.f);
     // Clear color buffer and Depth Buffer
     // Remember that the 'depth buffer' is our
     // z-buffer that figures out how far away items are every frame
     // and we have to do this every frame!
   	glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
 
-    // Render our object
-    m_object->Render();
-    m_object2->Render();
-    m_object3->Render();
-    m_object4->Render();
-    m_object5->Render();
-    m_object6->Render();
-    m_object7->Render();
-    // Note: This line is equivalent to:
-    // (*m_object).Render(); // But the easier style
-    // is to use the '->' which dereferences and then
-    // selects the field/function with the '.' operator.
+    // Render blocks
+    builder.Render(blocksArray);
 
     SDL_Delay(50);
 }
 
 
 //Loops forever!
-void SDLGraphicsProgram::Loop(){
+void SDLGraphicsProgram::Loop() {
     // Main loop flag
     // If this is quit = 'true' then the program terminates.
     bool quit = false;
@@ -208,21 +178,21 @@ void SDLGraphicsProgram::Loop(){
     // Enable text input
     SDL_StartTextInput();
     // While application is running
-    while(!quit){
+    while (!quit) {
      	 //Handle events on queue
-		while(SDL_PollEvent( &e ) != 0) {
+		while (SDL_PollEvent( &e ) != 0) {
         	// User posts an event to quit
 	        // An example is hitting the "x" in the corner of the window.
-    	    if(e.type == SDL_QUIT) {
+    	    if (e.type == SDL_QUIT) {
         		quit = true;
 	        }
-            if(e.type==SDL_MOUSEMOTION) {
+            if (e.type==SDL_MOUSEMOTION) {
                 int mouseX = e.motion.x;
                 int mouseY = e.motion.y;
                 Camera::Instance().MouseLook(mouseX, mouseY);
             }
 			if (e.type == SDL_KEYDOWN) {
-				switch(e.key.keysym.sym) {
+				switch (e.key.keysym.sym) {
 					case SDLK_q:
 						quit = true;
 						break;
@@ -280,12 +250,12 @@ void SDLGraphicsProgram::Loop(){
 
 
 // Get Pointer to Window
-SDL_Window* SDLGraphicsProgram::GetSDLWindow(){
+SDL_Window* SDLGraphicsProgram::GetSDLWindow() {
   return m_window;
 }
 
 // Helper Function to get OpenGL Version Information
-void SDLGraphicsProgram::GetOpenGLVersionInfo(){
+void SDLGraphicsProgram::GetOpenGLVersionInfo() {
 	SDL_Log("(Note: If you have two GPU's, make sure the correct one is selected)");
 	SDL_Log("Vendor: %s",(const char*)glGetString(GL_VENDOR));
 	SDL_Log("Renderer: %s",(const char*)glGetString(GL_RENDERER));

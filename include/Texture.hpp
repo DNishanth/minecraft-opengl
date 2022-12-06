@@ -18,8 +18,6 @@ public:
     void Bind(unsigned int slot=0) const;
     // Be done with our texture
     void Unbind();
-	// Loads a PPM from memory.
-	void LoadPPM(bool flip);
     // Return the width
     inline int GetWidth(){
         return m_width;
