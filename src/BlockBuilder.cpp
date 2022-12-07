@@ -20,16 +20,25 @@ void BlockBuilder::MakeTexturedQuad(std::string fileName) {
 	float colIdx2 = 7;
 	float rowIdx2 = 3;
 
+    // TODO: Inset to get rid of white lines, is this the best way?
 	// UV 0, 0 is bottom left of atlas
-	float left_U  = colIdx / numCols;
-	float right_U = (colIdx + 1.0f) / numCols;
-	float top_V = (numRows - rowIdx) / numRows;
-	float bottom_V = (numRows - rowIdx - 1.0f) / numRows;
+	// float left_U  = colIdx / numCols;
+	// float right_U = (colIdx + 1.0f) / numCols;
+	// float top_V = (numRows - rowIdx) / numRows;
+	// float bottom_V = (numRows - rowIdx - 1.0f) / numRows;
+	float left_U  = (colIdx / numCols) + .001f;
+	float right_U = ((colIdx + 1.0f) / numCols) - .001f;
+	float top_V = ((numRows - rowIdx) / numRows) - .001f;
+	float bottom_V = ((numRows - rowIdx - 1.0f) / numRows) + .001f;
 
-	float left_U2  = colIdx2 / numCols;
-	float right_U2 = (colIdx2 + 1.0f) / numCols;
-	float top_V2    = (numRows - rowIdx2)        / numRows;
-	float bottom_V2 = (numRows - rowIdx2 - 1.0f) / numRows;
+	// float left_U2  = colIdx2 / numCols;
+	// float right_U2 = (colIdx2 + 1.0f) / numCols;
+	// float top_V2 = (numRows - rowIdx2) / numRows;
+	// float bottom_V2 = (numRows - rowIdx2 - 1.0f) / numRows;
+	float left_U2  = (colIdx2 / numCols) + .001f;
+	float right_U2 = ((colIdx2 + 1.0f) / numCols) - .001f;
+	float top_V2 = ((numRows - rowIdx2) / numRows) - .001f;
+	float bottom_V2 = ((numRows - rowIdx2 - 1.0f) / numRows) + .001f;
 
 	std::cout << "Left U: " << left_U << std::endl;
 	std::cout << "Right U: " << right_U << std::endl;
@@ -97,7 +106,7 @@ void BlockBuilder::MakeTexturedQuad(std::string fileName) {
 	std::string fragmentShader = m_shader.LoadShader("./shaders/frag.glsl");
 	
     // Actually create our shader
-	m_shader.CreateShader(vertexShader,fragmentShader);
+	m_shader.CreateShader(vertexShader, fragmentShader);
 
     m_vertexBufferLayout.Bind();
 	m_texture.Bind();
@@ -129,11 +138,11 @@ void BlockBuilder::Update(BlockData& blockData, unsigned int screenWidth, unsign
 
 void BlockBuilder::Render(BlocksArray& blocksArray) {
 	// Select this BlockBuilders buffer to render
-	// m_vertexBufferLayout.Bind();
-	// // Select this BlockBuilders texture to render
-	// m_texture.Bind();
-	// // Select this BlockBuilders shader to render
-	// m_shader.Bind();
+	m_vertexBufferLayout.Bind();
+	// Select this BlockBuilders texture to render
+	m_texture.Bind();
+	// Select this BlockBuilders shader to render
+	m_shader.Bind();
 	// TODO: Choose which vertices/indices to use in here or update based on type of block given
     // Render data
     for (int x = 0; x < 16; x++) {

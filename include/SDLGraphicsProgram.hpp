@@ -19,6 +19,7 @@
 #include <glad/glad.h>
 #include "BlockBuilder.hpp"
 #include "BlockData.hpp"
+#include "SelectionFrameBuffer.hpp"
 
 // Purpose:
 // This class sets up a full graphics program using SDL
@@ -37,8 +38,10 @@ public:
     void Update();
     // Renders shapes to the screen
     void Render();
-    // loop that runs forever
+    // Loop that runs forever
     void Loop();
+    // Get selected block at cursor position
+    void GetSelection(int x, int y);
     // Get Pointer to Window
     SDL_Window* GetSDLWindow();
     // Helper Function to Query OpenGL information.
@@ -52,6 +55,8 @@ private:
     SDL_Window* m_window;
     // OpenGL context
     SDL_GLContext m_openGLContext;
+
+    SelectionFrameBuffer selectionBuffer;
     BlockBuilder builder;
     BlocksArray blocksArray;
 };

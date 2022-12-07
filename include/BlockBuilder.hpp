@@ -31,11 +31,11 @@ public:
     void Render(BlocksArray& BlocksArray);
     // Returns an BlockBuilders transform
     Transform& GetTransform();
+    // BlockBuilder indices // TODO: public/private
+    std::vector<GLuint> m_indices;
 private:
     // BlockBuilder vertices
     std::vector<GLfloat> m_vertices;
-    // BlockBuilder indices
-    std::vector<GLuint> m_indices;
 
     // For now we have one shader per BlockBuilder.
     Shader m_shader;

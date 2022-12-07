@@ -8,8 +8,8 @@ VertexBufferLayout::VertexBufferLayout(){
 VertexBufferLayout::~VertexBufferLayout(){
     // Delete our buffers that we have previously allocated
     // http://docs.gl/gl3/glDeleteBuffers
-    glDeleteBuffers(1,&m_vertexPositionBuffer);
-    glDeleteBuffers(1,&m_indexBufferObject);
+    glDeleteBuffers(1, &m_vertexPositionBuffer);
+    glDeleteBuffers(1, &m_indexBufferObject);
 }
 
 

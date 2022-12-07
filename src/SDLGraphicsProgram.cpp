@@ -1,10 +1,12 @@
-#include "SDLGraphicsProgram.hpp"
-#include "Camera.hpp"
-
 #include <iostream>
 #include <string>
 #include <sstream>
 #include <fstream>
+
+#include "SDLGraphicsProgram.hpp"
+#include "Camera.hpp"
+#include "SelectionFrameBuffer.hpp"
+
 
 // Initialization function
 // Returns a true or false value based on successful completion of setup.
@@ -19,11 +21,11 @@ SDLGraphicsProgram::SDLGraphicsProgram(int w, int h):m_screenWidth(w),m_screenHe
 	// Render flag
 
 	// Initialize SDL
-	if(SDL_Init(SDL_INIT_VIDEO)< 0){
+	if (SDL_Init(SDL_INIT_VIDEO) < 0) {
 		errorStream << "SDL could not initialize! SDL Error: " << SDL_GetError() << "\n";
 		success = false;
 	}
-	else{
+	else {
 		//Use OpenGL 3.3 core
 		SDL_GL_SetAttribute( SDL_GL_CONTEXT_MAJOR_VERSION, 3 );
 		SDL_GL_SetAttribute( SDL_GL_CONTEXT_MINOR_VERSION, 3 );
@@ -41,37 +43,37 @@ SDLGraphicsProgram::SDLGraphicsProgram(int w, int h):m_screenWidth(w),m_screenHe
                                 SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN );
 
 		// Check if Window did not create.
-		if( m_window == NULL ){
+		if (m_window == NULL ) {
 			errorStream << "Window could not be created! SDL Error: " << SDL_GetError() << "\n";
 			success = false;
 		}
 
 		//Create an OpenGL Graphics Context
-		m_openGLContext = SDL_GL_CreateContext( m_window );
-		if( m_openGLContext == NULL){
+		m_openGLContext = SDL_GL_CreateContext(m_window);
+		if (m_openGLContext == NULL) {
 			errorStream << "OpenGL context could not be created! SDL Error: " << SDL_GetError() << "\n";
 			success = false;
 		}
 
 		// Initialize GLAD Library
-		if(!gladLoadGLLoader(SDL_GL_GetProcAddress)){
+		if (!gladLoadGLLoader(SDL_GL_GetProcAddress)) {
 			errorStream << "Failed to iniitalize GLAD\n";
 			success = false;
 		}
 
 		//Initialize OpenGL
-		if(!InitGL()){
+		if (!InitGL()) {
 			errorStream << "Unable to initialize OpenGL!\n";
 			success = false;
 		}
   	}
 
     // If initialization did not work, then print out a list of errors in the constructor.
-    if(!success){
+    if (!success) {
         errorStream << "SDLGraphicsProgram::SDLGraphicsProgram - Failed to initialize!\n";
         std::string errors=errorStream.str();
         SDL_Log("%s\n",errors.c_str());
-    }else{
+    } else {
         SDL_Log("SDLGraphicsProgram::SDLGraphicsProgram - No SDL, GLAD, or OpenGL, errors detected during initialization\n\n");
     }
 
@@ -80,6 +82,8 @@ SDLGraphicsProgram::SDLGraphicsProgram(int w, int h):m_screenWidth(w),m_screenHe
 
     builder.MakeTexturedQuad("");
     InitWorld();
+
+    // selectionBuffer.Create(m_screenWidth, m_screenHeight);
 }
 
 
@@ -186,10 +190,18 @@ void SDLGraphicsProgram::Loop() {
     	    if (e.type == SDL_QUIT) {
         		quit = true;
 	        }
-            if (e.type==SDL_MOUSEMOTION) {
-                int mouseX = e.motion.x;
+            if (e.type == SDL_MOUSEMOTION) {
+                int mouseX = e.motion.x; // TODO: move out of loop
                 int mouseY = e.motion.y;
                 Camera::Instance().MouseLook(mouseX, mouseY);
+            }
+            if (e.type == SDL_MOUSEBUTTONDOWN) {
+                if (e.button.button == SDL_BUTTON_LEFT) {
+                    int mouseX = e.button.x;
+                    int mouseY = e.motion.y;
+                    // GetSelection(mouseX, mouseY);
+                    std::cout << "Mouse X: " << mouseX << " Y: " << mouseY << std::endl;
+                }
             }
 			if (e.type == SDL_KEYDOWN) {
 				switch (e.key.keysym.sym) {
@@ -246,6 +258,46 @@ void SDLGraphicsProgram::Loop() {
 
     //Disable text input
     SDL_StopTextInput();
+}
+
+
+void SDLGraphicsProgram::GetSelection(int x, int y) {
+    // TODO: Does this fit better in selection buffer class?
+    // TODO: USE API TRACE TO SHOW FRAME BUFFER
+    // TODO: Better design is to have block builder take in shader to update
+    selectionBuffer.Bind();
+  	glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
+
+    glm::mat4 m_projectionMatrix = glm::perspective(45.0f, (float) m_screenWidth/(float)m_screenHeight, 0.1f, 100.0f);
+    int blockIndex = 1;
+    for (int x = 0; x < 16; x++) {
+        for (int y = 0; y < 16; y++) {
+            for (int z = 0; z < 16; z++) {
+                BlockData block = blocksArray.getBlock(x, y, z);
+                if (block.isVisible) {
+                    // Update(block, 1280, 720);
+                    selectionBuffer.m_shader.SetUniformMatrix4fv("model", block.m_transform.GetTransformMatrix());
+                    selectionBuffer.m_shader.SetUniformMatrix4fv("view", &Camera::Instance().GetWorldToViewmatrix()[0][0]);
+                    selectionBuffer.m_shader.SetUniformMatrix4fv("projection", &m_projectionMatrix[0][0]);
+                    int r = (blockIndex & 0x000000FF) >>  0; // Convert block index to 3 digits from 0-255 
+                    int g = (blockIndex & 0x0000FF00) >>  8; // http://www.opengl-tutorial.org/miscellaneous/clicking-on-objects/picking-with-an-opengl-hack/
+                    int b = (blockIndex & 0x00FF0000) >> 16;
+                    selectionBuffer.m_shader.SetUniform4f("blockColor", r/255.0f, g/255.0f, b/255.0f, 1.0f);
+                    blockIndex++;
+
+                    glDrawElements(GL_TRIANGLES,
+                        builder.m_indices.size(),   // The number of indices, not triangles.
+                        GL_UNSIGNED_INT,    // Make sure the data type matches
+                        nullptr);           // Offset pointer to the data. nullptr
+                                            // because we are currently bound:
+                }           
+            }
+        }
+    }
+    // TODO: change to center screen
+    int selectedBlockIndex = selectionBuffer.ReadPixel(x, m_screenHeight - y - 1);
+    selectionBuffer.Unbind();
+    std::cout << "Selected index: " << selectedBlockIndex << std::endl;
 }
 
 

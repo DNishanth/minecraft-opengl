@@ -167,3 +167,8 @@ void Shader::SetUniformMatrix1i(const GLchar* name, int value){
     glUniform1i(location, value);
 }
 
+// Set 4 float values
+void Shader::SetUniform4f(const GLchar* name, float v0, float v1, float v2, float v3){
+    GLint location = glGetUniformLocation(m_shaderID, name);
+    glUniform4f(location, v0, v1, v2, v3);
+}

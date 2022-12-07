@@ -52,6 +52,7 @@ void Texture::LoadTexture(const std::string filepath){
 	// our textures.
 	// There are four parameters that must be set.
 	// GL_TEXTURE_MIN_FILTER - How texture filters (linearly, etc.)
+	// glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST_MIPMAP_LINEAR); // best mipmap option tested
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 	// Wrap mode describes what to do if we go outside the boundaries of
@@ -66,7 +67,7 @@ void Texture::LoadTexture(const std::string filepath){
         exit(1);
     }
     glTexImage2D(GL_TEXTURE_2D,
-                        0 ,
+                        0,
                     GL_RGBA,
                     width,
                     height,
@@ -74,7 +75,7 @@ void Texture::LoadTexture(const std::string filepath){
                     GL_RGBA,
                     GL_UNSIGNED_BYTE,
                     data); // Here is the raw pixel data
-
+    // glGenerateMipmap(GL_TEXTURE_2D); // TODO: deal with moire pattern?
     // We are done with our texture data so we can unbind.
 	// We are done with our texture data so we can unbind.
 	glBindTexture(GL_TEXTURE_2D, 0);
