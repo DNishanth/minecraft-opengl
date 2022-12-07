@@ -56,7 +56,7 @@ private:
     // OpenGL context
     SDL_GLContext m_openGLContext;
 
-    SelectionFrameBuffer selectionBuffer;
+    // SelectionFrameBuffer selectionBuffer;
     BlockBuilder builder;
     BlocksArray blocksArray;
 };

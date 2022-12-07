@@ -205,9 +205,9 @@ void SDLGraphicsProgram::Loop() {
             }
 			if (e.type == SDL_KEYDOWN) {
 				switch (e.key.keysym.sym) {
-					case SDLK_q:
-						quit = true;
-						break;
+					// case SDLK_q:
+					// 	quit = true;
+					// 	break;
 					case SDLK_i:
 						if (showWireframe) {
 							glPolygonMode(GL_FRONT_AND_BACK, GL_FILL); // Render filled in
@@ -237,7 +237,7 @@ void SDLGraphicsProgram::Loop() {
                         Camera::Instance().MoveDown(cameraSpeed);
                         break;
                     case SDLK_p:
-                        std::cout << "Position: " 
+                        std::cout << "Position: "
                         << Camera::Instance().GetEyeXPosition() << " "
                         << Camera::Instance().GetEyeYPosition() << " "
                         << Camera::Instance().GetEyeZPosition() << " "
@@ -265,39 +265,39 @@ void SDLGraphicsProgram::GetSelection(int x, int y) {
     // TODO: Does this fit better in selection buffer class?
     // TODO: USE API TRACE TO SHOW FRAME BUFFER
     // TODO: Better design is to have block builder take in shader to update
-    selectionBuffer.Bind();
-  	glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
+    // selectionBuffer.Bind();
+  	// glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
 
-    glm::mat4 m_projectionMatrix = glm::perspective(45.0f, (float) m_screenWidth/(float)m_screenHeight, 0.1f, 100.0f);
-    int blockIndex = 1;
-    for (int x = 0; x < 16; x++) {
-        for (int y = 0; y < 16; y++) {
-            for (int z = 0; z < 16; z++) {
-                BlockData block = blocksArray.getBlock(x, y, z);
-                if (block.isVisible) {
-                    // Update(block, 1280, 720);
-                    selectionBuffer.m_shader.SetUniformMatrix4fv("model", block.m_transform.GetTransformMatrix());
-                    selectionBuffer.m_shader.SetUniformMatrix4fv("view", &Camera::Instance().GetWorldToViewmatrix()[0][0]);
-                    selectionBuffer.m_shader.SetUniformMatrix4fv("projection", &m_projectionMatrix[0][0]);
-                    int r = (blockIndex & 0x000000FF) >>  0; // Convert block index to 3 digits from 0-255 
-                    int g = (blockIndex & 0x0000FF00) >>  8; // http://www.opengl-tutorial.org/miscellaneous/clicking-on-objects/picking-with-an-opengl-hack/
-                    int b = (blockIndex & 0x00FF0000) >> 16;
-                    selectionBuffer.m_shader.SetUniform4f("blockColor", r/255.0f, g/255.0f, b/255.0f, 1.0f);
-                    blockIndex++;
+    // glm::mat4 m_projectionMatrix = glm::perspective(45.0f, (float) m_screenWidth/(float)m_screenHeight, 0.1f, 100.0f);
+    // int blockIndex = 1;
+    // for (int x = 0; x < 16; x++) {
+    //     for (int y = 0; y < 16; y++) {
+    //         for (int z = 0; z < 16; z++) {
+    //             BlockData block = blocksArray.getBlock(x, y, z);
+    //             if (block.isVisible) {
+    //                 // Update(block, 1280, 720);
+    //                 selectionBuffer.m_shader.SetUniformMatrix4fv("model", block.m_transform.GetTransformMatrix());
+    //                 selectionBuffer.m_shader.SetUniformMatrix4fv("view", &Camera::Instance().GetWorldToViewmatrix()[0][0]);
+    //                 selectionBuffer.m_shader.SetUniformMatrix4fv("projection", &m_projectionMatrix[0][0]);
+    //                 int r = (blockIndex & 0x000000FF) >>  0; // Convert block index to 3 digits from 0-255 
+    //                 int g = (blockIndex & 0x0000FF00) >>  8; // http://www.opengl-tutorial.org/miscellaneous/clicking-on-objects/picking-with-an-opengl-hack/
+    //                 int b = (blockIndex & 0x00FF0000) >> 16;
+    //                 selectionBuffer.m_shader.SetUniform4f("blockColor", r/255.0f, g/255.0f, b/255.0f, 1.0f);
+    //                 blockIndex++;
 
-                    glDrawElements(GL_TRIANGLES,
-                        builder.m_indices.size(),   // The number of indices, not triangles.
-                        GL_UNSIGNED_INT,    // Make sure the data type matches
-                        nullptr);           // Offset pointer to the data. nullptr
-                                            // because we are currently bound:
-                }           
-            }
-        }
-    }
-    // TODO: change to center screen
-    int selectedBlockIndex = selectionBuffer.ReadPixel(x, m_screenHeight - y - 1);
-    selectionBuffer.Unbind();
-    std::cout << "Selected index: " << selectedBlockIndex << std::endl;
+    //                 glDrawElements(GL_TRIANGLES,
+    //                     builder.m_indices.size(),   // The number of indices, not triangles.
+    //                     GL_UNSIGNED_INT,    // Make sure the data type matches
+    //                     nullptr);           // Offset pointer to the data. nullptr
+    //                                         // because we are currently bound:
+    //             }
+    //         }
+    //     }
+    // }
+    // // TODO: change to center screen
+    // int selectedBlockIndex = selectionBuffer.ReadPixel(x, m_screenHeight - y - 1);
+    // selectionBuffer.Unbind();
+    // std::cout << "Selected index: " << selectedBlockIndex << std::endl;
 }
 
 

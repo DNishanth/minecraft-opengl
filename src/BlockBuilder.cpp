@@ -104,7 +104,7 @@ void BlockBuilder::MakeTexturedQuad(std::string fileName) {
 	// Setup shaders
 	std::string vertexShader = m_shader.LoadShader("./shaders/vert.glsl");
 	std::string fragmentShader = m_shader.LoadShader("./shaders/frag.glsl");
-	
+
     // Actually create our shader
 	m_shader.CreateShader(vertexShader, fragmentShader);
 
@@ -118,7 +118,7 @@ void BlockBuilder::MakeTexturedQuad(std::string fileName) {
 void BlockBuilder::Update(BlockData& blockData, unsigned int screenWidth, unsigned int screenHeight) {
 	// m_texture.Unbind();
 	// Make sure we are updating the correct 'buffers'
-	
+
 	// For our BlockBuilder, we apply the texture in the following way
 	// Note that we set the value to 0, because we have bound
 	// our texture to slot 0.
