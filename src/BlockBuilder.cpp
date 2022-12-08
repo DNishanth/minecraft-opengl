@@ -17,8 +17,8 @@ void BlockBuilder::MakeTexturedQuad(std::string fileName) {
 	float numCols = 16.0f;
 	float rowIdx = 3;
 	float colIdx = 7; // wood plank block, counting from bottom left corner
-	float colIdx2 = 7;
 	float rowIdx2 = 3;
+	float colIdx2 = 7;
 
     // TODO: Inset to get rid of white lines, is this the best way?
 	// UV 0, 0 is bottom left of atlas
@@ -151,12 +151,25 @@ void BlockBuilder::Render(BlocksArray& blocksArray) {
                 BlockData block = blocksArray.getBlock(x, y, z);
                 if (block.isVisible) {
                     Update(block, 1280, 720);
+                    // glDrawRangeElements(GL_TRIANGLES,
+                    //     0,
+                    //     3,
+                    //     m_indices.size(),
+                    //     GL_UNSIGNED_INT,
+                    //     nullptr);
+
+                    // glDrawElements(GL_TRIANGLES,
+                    //     6,   // The number of indices, not triangles.
+                    //     GL_UNSIGNED_INT,    // Make sure the data type matches
+                    //     (void*)(18 * sizeof(GLuint)));           // Offset pointer to the data. nullptr
+                    //                         // because we are currently bound:
+                    
                     glDrawElements(GL_TRIANGLES,
                         m_indices.size(),   // The number of indices, not triangles.
                         GL_UNSIGNED_INT,    // Make sure the data type matches
                         nullptr);           // Offset pointer to the data. nullptr
                                             // because we are currently bound:
-                }           
+                }     
             }
         }
     }

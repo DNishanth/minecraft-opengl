@@ -196,10 +196,14 @@ void SDLGraphicsProgram::Loop() {
                 Camera::Instance().MouseLook(mouseX, mouseY);
             }
             if (e.type == SDL_MOUSEBUTTONDOWN) {
+                int mouseX = e.button.x;
+                int mouseY = e.motion.y;
                 if (e.button.button == SDL_BUTTON_LEFT) {
-                    int mouseX = e.button.x;
-                    int mouseY = e.motion.y;
-                    GetSelection(mouseX, mouseY);
+                    GetSelection(mouseX, mouseY, SDL_BUTTON_LEFT);
+                    std::cout << "Mouse X: " << mouseX << " Y: " << mouseY << std::endl;
+                }
+                else if (e.button.button == SDL_BUTTON_RIGHT) {
+                    GetSelection(mouseX, mouseY, SDL_BUTTON_RIGHT);
                     std::cout << "Mouse X: " << mouseX << " Y: " << mouseY << std::endl;
                 }
             }
@@ -261,7 +265,7 @@ void SDLGraphicsProgram::Loop() {
 }
 
 
-void SDLGraphicsProgram::GetSelection(int x, int y) {
+void SDLGraphicsProgram::GetSelection(int mouseX, int mouseY, int clickType) {
     // TODO: Does this fit better in selection buffer class?
     // TODO: USE API TRACE TO SHOW FRAME BUFFER
     // TODO: Better design is to have block builder take in shader to update
@@ -279,31 +283,76 @@ void SDLGraphicsProgram::GetSelection(int x, int y) {
                     selectionBuffer.m_shader.SetUniformMatrix4fv("model", block.m_transform.GetTransformMatrix());
                     selectionBuffer.m_shader.SetUniformMatrix4fv("view", &Camera::Instance().GetWorldToViewmatrix()[0][0]);
                     selectionBuffer.m_shader.SetUniformMatrix4fv("projection", &m_projectionMatrix[0][0]);
-                    int r = (blockIndex & 0x000000FF) >>  0; // Convert block index to 3 digits from 0-255 
-                    int g = (blockIndex & 0x0000FF00) >>  8; // http://www.opengl-tutorial.org/miscellaneous/clicking-on-objects/picking-with-an-opengl-hack/
-                    int b = (blockIndex & 0x00FF0000) >> 16;
-                    selectionBuffer.m_shader.SetUniform4f("blockColor", r/255.0f, g/255.0f, b/255.0f, 1.0f);
-
-                    glDrawElements(GL_TRIANGLES,
-                        builder.m_indices.size(),   // The number of indices, not triangles.
-                        GL_UNSIGNED_INT,    // Make sure the data type matches
-                        nullptr);           // Offset pointer to the data. nullptr
+                    for (int i = 0; i <= 30; i += 6) {
+                        int r = ((blockIndex + (i/6)) & 0x000000FF) >>  0; // Convert block index to 3 digits from 0-255 
+                        int g = ((blockIndex + (i/6)) & 0x0000FF00) >>  8; // http://www.opengl-tutorial.org/miscellaneous/clicking-on-objects/picking-with-an-opengl-hack/
+                        int b = ((blockIndex + (i/6)) & 0x00FF0000) >> 16;
+                        selectionBuffer.m_shader.SetUniform4f("blockColor", r/255.0f, g/255.0f, b/255.0f, 1.0f);
+                        // blockIndex++;
+                        glDrawElements(GL_TRIANGLES,
+                            6,   // The number of indices, not triangles.
+                            GL_UNSIGNED_INT,    // Make sure the data type matches
+                            (void*)(i * sizeof(GLuint)));           // Offset pointer to the data. nullptr
                                             // because we are currently bound:
+                    }
+
+                    // glDrawElements(GL_TRIANGLES,
+                    //     builder.m_indices.size(),   // The number of indices, not triangles.
+                    //     GL_UNSIGNED_INT,    // Make sure the data type matches
+                    //     nullptr);           // Offset pointer to the data. nullptr
+                    //                         // because we are currently bound:
                 }
-                blockIndex++;
+                blockIndex+=6;
             }
         }
-    }
+    } 
     // TODO: change to center screen
-    int selectedBlockIndex = selectionBuffer.ReadPixel(x, m_screenHeight - y - 1);
+    int selectedBlockIndex = selectionBuffer.ReadPixel(mouseX, m_screenHeight - mouseY - 1);
     selectionBuffer.Unbind();
-    std::cout << "Selected index: " << selectedBlockIndex << std::endl;
-    if (selectedBlockIndex <= 4096) {
-        int z = selectedBlockIndex % 16;
-        int y = (selectedBlockIndex / 16) % 16;
-        int x = selectedBlockIndex / 256;
-        std::cout << "Block X: " << x << " Y: " << y << " Z: " << z << std::endl;
+    int face = selectedBlockIndex % 6;
+    int blockID = selectedBlockIndex - face;
+    selectedBlockIndex = blockID / 6;
+    std::cout << "\nSelected index: " << selectedBlockIndex << std::endl;
+    std::cout << "Block ID: " << blockID << std::endl;
+    std::cout << "Face: " << face << std::endl;
+    if (selectedBlockIndex > 4096* 8) {
+        return;
+    }
+    int z = selectedBlockIndex % 16;
+    int y = (selectedBlockIndex / 16) % 16;
+    int x = selectedBlockIndex / 256;
+    std::cout << "Block X: " << x << " Y: " << y << " Z: " << z << std::endl;
+    if (clickType == SDL_BUTTON_LEFT) {
+        std::cout << "Handling left click" << std::endl;
         blocksArray.getBlock(x, y, z).isVisible = false;
+    }
+    // debug face selection
+    if (clickType == SDL_BUTTON_RIGHT) {
+        std::cout << "Handling right click" << std::endl;
+        if (face == 0) {
+            std::cout << "Front" << std::endl;
+            blocksArray.getBlock(x, y, z + 1).isVisible = true;
+        }
+        else if (face == 1) {
+            std::cout << "Back" << std::endl;
+            blocksArray.getBlock(x, y, z - 1).isVisible = true;
+        }
+        else if (face == 2) {
+            std::cout << "Top" << std::endl;
+            blocksArray.getBlock(x, y + 1, z).isVisible = true;
+        }
+        else if (face == 3) {
+            std::cout << "Bot" << std::endl;
+            blocksArray.getBlock(x, y - 1, z).isVisible = true;
+        }
+        else if (face == 4) {
+            std::cout << "Right" << std::endl;
+            blocksArray.getBlock(x + 1, y, z).isVisible = true;
+        }
+        else if (face == 5) {
+            std::cout << "Left" << std::endl;
+            blocksArray.getBlock(x - 1, y, z).isVisible = true; // TODO: how is this not a segfault????
+        }
     }
 }
 
