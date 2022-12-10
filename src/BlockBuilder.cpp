@@ -159,6 +159,7 @@ void BlockBuilder::Render(BlocksArray& blocksArray) {
 	// Select this BlockBuilders shader to render
 	m_shader.Bind();
 	// TODO: Choose which vertices/indices to use in here or update based on type of block given
+	// TODO: Only set rendering block if it changes
     // Render data
     for (int x = 0; x < 16; x++) {
         for (int y = 0; y < 16; y++) {

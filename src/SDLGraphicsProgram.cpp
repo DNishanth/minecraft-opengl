@@ -122,12 +122,13 @@ void SDLGraphicsProgram::InitWorld() {
     for (int x = 0; x < 16; x++) {
         for (int y = 0; y < 16; y++) {
             for (int z = 0; z < 16; z++) {
-                blocksArray.getBlock(x, y, z).isVisible = true;
+                blocksArray.getBlock(x, y, z).isVisible = false;
                 blocksArray.getBlock(x, y, z).blockType = Dirt;
                 blocksArray.getBlock(x, y, z).m_transform.Translate(x,y,z);
             }
         }
     }
+    blocksArray.getBlock(0, 0, 0).isVisible = true;
 }
 
 
@@ -308,6 +309,7 @@ void SDLGraphicsProgram::GetSelection(int mouseX, int mouseY, int clickType) {
             for (int z = 0; z < 16; z++) {
                 BlockData block = blocksArray.getBlock(x, y, z);
                 if (block.isVisible) {
+                    std::cout << "Should only be once" << std::endl;
                     // Update(block, 1280, 720);
                     // TODO: do this in blockbuilder pass in shader used
                     selectionBuffer.m_shader.SetUniformMatrix4fv("model", block.m_transform.GetTransformMatrix());
@@ -337,6 +339,7 @@ void SDLGraphicsProgram::GetSelection(int mouseX, int mouseY, int clickType) {
         }
     }
     // TODO: change to center screen
+    // TODO: Make sure background color can't be selected
     int selectedBlockIndex = selectionBuffer.ReadPixel(mouseX, m_screenHeight - mouseY - 1);
     selectionBuffer.Unbind();
     int face = selectedBlockIndex % 6;
@@ -362,7 +365,6 @@ void SDLGraphicsProgram::GetSelection(int mouseX, int mouseY, int clickType) {
         if (face == 0) {
             std::cout << "Front" << std::endl;
             z += 1;
-
         }
         else if (face == 1) {
             std::cout << "Back" << std::endl;
