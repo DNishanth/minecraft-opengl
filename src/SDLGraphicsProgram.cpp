@@ -82,6 +82,7 @@ SDLGraphicsProgram::SDLGraphicsProgram(int w, int h):m_screenWidth(w),m_screenHe
 
     builder.MakeTexturedQuad("");
     InitWorld();
+    activeBlock = Brick;
 
     selectionBuffer.Create(m_screenWidth, m_screenHeight);
 }
@@ -109,7 +110,7 @@ bool SDLGraphicsProgram::InitGL() {
 
     // Setup our OpenGL State machine
     // The below command is new!
-    // What we are doing, is telling opengl to create a depth(or Z-buffer) 
+    // What we are doing, is telling opengl to create a depth(or Z-buffer)
     // for us that is stored every frame.
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_TEXTURE_2D);
@@ -122,7 +123,7 @@ void SDLGraphicsProgram::InitWorld() {
         for (int y = 0; y < 16; y++) {
             for (int z = 0; z < 16; z++) {
                 blocksArray.getBlock(x, y, z).isVisible = true;
-                blocksArray.getBlock(x, y, z).blockType = 1;
+                blocksArray.getBlock(x, y, z).blockType = Dirt;
                 blocksArray.getBlock(x, y, z).m_transform.Translate(x,y,z);
             }
         }
@@ -209,9 +210,9 @@ void SDLGraphicsProgram::Loop() {
             }
 			if (e.type == SDL_KEYDOWN) {
 				switch (e.key.keysym.sym) {
-					// case SDLK_q:
-					// 	quit = true;
-					// 	break;
+					case SDLK_q:
+						quit = true;
+						break;
 					case SDLK_i:
 						if (showWireframe) {
 							glPolygonMode(GL_FRONT_AND_BACK, GL_FILL); // Render filled in
@@ -268,6 +269,7 @@ void SDLGraphicsProgram::Loop() {
 void SDLGraphicsProgram::GetSelection(int mouseX, int mouseY, int clickType) {
     // TODO: Does this fit better in selection buffer class?
     // TODO: USE API TRACE TO SHOW FRAME BUFFER
+    // TODO: distance check for selection
     // TODO: Better design is to have block builder take in shader to update
     selectionBuffer.Bind();
   	glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
@@ -280,11 +282,12 @@ void SDLGraphicsProgram::GetSelection(int mouseX, int mouseY, int clickType) {
                 BlockData block = blocksArray.getBlock(x, y, z);
                 if (block.isVisible) {
                     // Update(block, 1280, 720);
+                    // TODO: do this in blockbuilder pass in shader used
                     selectionBuffer.m_shader.SetUniformMatrix4fv("model", block.m_transform.GetTransformMatrix());
                     selectionBuffer.m_shader.SetUniformMatrix4fv("view", &Camera::Instance().GetWorldToViewmatrix()[0][0]);
                     selectionBuffer.m_shader.SetUniformMatrix4fv("projection", &m_projectionMatrix[0][0]);
                     for (int i = 0; i <= 30; i += 6) {
-                        int r = ((blockIndex + (i/6)) & 0x000000FF) >>  0; // Convert block index to 3 digits from 0-255 
+                        int r = ((blockIndex + (i/6)) & 0x000000FF) >>  0; // Convert block index to 3 digits from 0-255
                         int g = ((blockIndex + (i/6)) & 0x0000FF00) >>  8; // http://www.opengl-tutorial.org/miscellaneous/clicking-on-objects/picking-with-an-opengl-hack/
                         int b = ((blockIndex + (i/6)) & 0x00FF0000) >> 16;
                         selectionBuffer.m_shader.SetUniform4f("blockColor", r/255.0f, g/255.0f, b/255.0f, 1.0f);
@@ -305,7 +308,7 @@ void SDLGraphicsProgram::GetSelection(int mouseX, int mouseY, int clickType) {
                 blockIndex+=6;
             }
         }
-    } 
+    }
     // TODO: change to center screen
     int selectedBlockIndex = selectionBuffer.ReadPixel(mouseX, m_screenHeight - mouseY - 1);
     selectionBuffer.Unbind();
@@ -331,28 +334,31 @@ void SDLGraphicsProgram::GetSelection(int mouseX, int mouseY, int clickType) {
         std::cout << "Handling right click" << std::endl;
         if (face == 0) {
             std::cout << "Front" << std::endl;
-            blocksArray.getBlock(x, y, z + 1).isVisible = true;
+            z += 1;
+
         }
         else if (face == 1) {
             std::cout << "Back" << std::endl;
-            blocksArray.getBlock(x, y, z - 1).isVisible = true;
+            z -= 1;
         }
         else if (face == 2) {
             std::cout << "Top" << std::endl;
-            blocksArray.getBlock(x, y + 1, z).isVisible = true;
+            y += 1;
         }
         else if (face == 3) {
             std::cout << "Bot" << std::endl;
-            blocksArray.getBlock(x, y - 1, z).isVisible = true;
+            y -= 1;
         }
         else if (face == 4) {
             std::cout << "Right" << std::endl;
-            blocksArray.getBlock(x + 1, y, z).isVisible = true;
+            x += 1;
         }
         else if (face == 5) {
             std::cout << "Left" << std::endl;
-            blocksArray.getBlock(x - 1, y, z).isVisible = true; // TODO: how is this not a segfault????
+            x -= 1;
         }
+        blocksArray.getBlock(x, y, z).blockType = activeBlock;
+        blocksArray.getBlock(x, y, z).isVisible = true;
     }
 }
 

@@ -9,6 +9,7 @@ VertexBufferLayout::~VertexBufferLayout(){
     // Delete our buffers that we have previously allocated
     // http://docs.gl/gl3/glDeleteBuffers
     glDeleteBuffers(1, &m_vertexPositionBuffer);
+    glDeleteBuffers(1, &m_textureCoordinatesBuffer);
     glDeleteBuffers(1, &m_indexBufferObject);
 }
 
@@ -18,6 +19,7 @@ void VertexBufferLayout::Bind(){
     glBindVertexArray(m_VAOId);
     // Bind to our vertex information
     glBindBuffer(GL_ARRAY_BUFFER, m_vertexPositionBuffer);
+    glBindBuffer(GL_ARRAY_BUFFER, m_textureCoordinatesBuffer);
     // Bind to the elements we are drawing
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_indexBufferObject);
 }
@@ -101,9 +103,9 @@ void VertexBufferLayout::CreatePositionBufferLayout(unsigned int vcount,unsigned
     }
 
 
-void VertexBufferLayout::CreateTextureBufferLayout(unsigned int vcount,unsigned int icount, float* vdata, unsigned int* idata ){
+void VertexBufferLayout::CreateTextureBufferLayout(unsigned int vcount, unsigned int tcount, unsigned int icount, float* vdata, float* tdata, unsigned int* idata ){
         // This layout uses x,y,z, and s,t
-        m_stride = 5;
+        m_stride = 3;
 
         static_assert(sizeof(GLfloat)==sizeof(float),
             "GLFloat and gloat are not the same size on this architecture");
@@ -161,9 +163,14 @@ void VertexBufferLayout::CreateTextureBufferLayout(unsigned int vcount,unsigned 
         // - Make sure you use a new attribute(i.e. 0 is already used for position data!)
         // - Make sure the correct offset is set (i.e. the starting point of the color data)
 
+        glGenBuffers(1, &m_textureCoordinatesBuffer);
+        glBindBuffer(GL_ARRAY_BUFFER, m_textureCoordinatesBuffer);
+        glBufferData(GL_ARRAY_BUFFER, tcount*sizeof(float), tdata, GL_STATIC_DRAW); // TODO: might change to dynamic
+
         // Add two floats for texture coordinates
         glEnableVertexAttribArray(1);
-        glVertexAttribPointer(1,2,GL_FLOAT, GL_TRUE,sizeof(float)*m_stride,(char*)(sizeof(float)*3));
+        glVertexAttribPointer(1, 2, GL_FLOAT, GL_TRUE, sizeof(float)*2, 0);
+        // glVertexAttribPointer(1, 2, GL_FLOAT, GL_TRUE, sizeof(float)*2, (GLvoid*)(48 * sizeof(GLfloat)));
 
 
         // Another Vertex VertexBufferLayout Object (VBO)

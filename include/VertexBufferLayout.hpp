@@ -26,17 +26,18 @@ public:
     // idata: A pointer to an array of data for indices
     // NOTE: Works only for floats--could support other formats.
     //
-    void CreatePositionBufferLayout(unsigned int vcount,unsigned int icount, float* vdata, unsigned int* idata );
+    void CreatePositionBufferLayout(unsigned int vcount,unsigned int icount, float* vdata, unsigned int* idata);
 
     // Creates a vertex and index buffer object
     // Format is: x,y,z, s,t
-    void CreateTextureBufferLayout(unsigned int vcount,unsigned int icount, float* vdata, unsigned int* idata );
+    void CreateTextureBufferLayout(unsigned int vcount, unsigned int tcount, unsigned int icount, float* vdata, float* tdata, unsigned int* idata);
 
 private:
     // Vertex Array Object
     GLuint m_VAOId;
     // Vertex Buffer
     GLuint m_vertexPositionBuffer;
+    GLuint m_textureCoordinatesBuffer;
     // Index Buffer Object
     GLuint m_indexBufferObject;
     // Stride of data (how do I get to the next vertex)

@@ -59,6 +59,7 @@ private:
     SelectionFrameBuffer selectionBuffer;
     BlockBuilder builder;
     BlocksArray blocksArray;
+    BlockType activeBlock;
 };
 
 #endif

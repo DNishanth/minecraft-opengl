@@ -3,8 +3,13 @@
 
 #include <glad/glad.h>
 
-#include <vector>
+// #include <array>
 #include <string>
+#include <unordered_map>
+#include <vector>
+
+#include "glm/vec3.hpp"
+#include "glm/gtc/matrix_transform.hpp"
 
 #include "Shader.hpp"
 #include "VertexBufferLayout.hpp"
@@ -12,8 +17,26 @@
 #include "Transform.hpp"
 #include "BlockData.hpp"
 
-#include "glm/vec3.hpp"
-#include "glm/gtc/matrix_transform.hpp"
+enum BlockType {
+    Dirt,
+    Grass,
+    Plank,
+    Brick
+};
+#define NUM_BLOCK_TYPES 3
+
+struct FaceTexture {
+    float leftU;
+    float rightU;
+    float topV;
+    float bottomV;
+
+    // Fill buffer with xyzst components
+    void addToBuffer(std::vector<GLfloat>& buffer) {
+        buffer.insert(buffer.end(),
+        {leftU, bottomV, rightU, bottomV, rightU, topV, leftU, topV});
+    }
+};
 
 // Purpose:
 // An abstraction to create multiple BlockBuilders
@@ -34,9 +57,10 @@ public:
     // BlockBuilder indices // TODO: public/private
     std::vector<GLuint> m_indices;
 private:
+    void generateBlockTexture(BlockType blockType, int top, int side, int bottom);
+    FaceTexture generateFaceTexture(int faceAtlasIndex);
     // BlockBuilder vertices
     std::vector<GLfloat> m_vertices;
-
     // For now we have one shader per BlockBuilder.
     Shader m_shader;
     // For now we have one buffer per BlockBuilder.
@@ -44,9 +68,11 @@ private:
     // For now we have one texture per BlockBuilder
     Texture m_texture;
     // Store the BlockBuilders transformations
-    Transform m_transform; 
+    Transform m_transform;
     // Store the 'camera' projection
     glm::mat4 m_projectionMatrix;
+    // std::array<std::vector<GLfloat>, NUM_BLOCK_TYPES> blockTextures;
+    std::vector<GLfloat> m_blockTextures;
 };
 
 
