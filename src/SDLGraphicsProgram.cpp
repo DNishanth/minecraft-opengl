@@ -248,6 +248,33 @@ void SDLGraphicsProgram::Loop() {
                         << Camera::Instance().GetEyeZPosition() << " "
                         << std::endl;
                         break;
+                    case SDLK_1:
+                        activeBlock = Dirt;
+                        break;
+                    case SDLK_2:
+                        activeBlock = Grass;
+                        break;
+                    case SDLK_3:
+                        activeBlock = Plank;
+                        break;
+                    case SDLK_4:
+                        activeBlock = Brick;
+                        break;
+                    case SDLK_5:
+                        activeBlock = Cobblestone;
+                        break;
+                    case SDLK_6:
+                        activeBlock = Sandstone;
+                        break;
+                    case SDLK_7:
+                        activeBlock = Mossystone;
+                        break;
+                    case SDLK_8:
+                        activeBlock = LightBlueWool;
+                        break;
+                    case SDLK_9:
+                        activeBlock = OrangeWool;
+                        break;
 				}
 			}
       	} // End SDL_PollEvent loop.

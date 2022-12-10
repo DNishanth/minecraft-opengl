@@ -5,8 +5,13 @@
 BlockBuilder::BlockBuilder() {
     generateBlockTexture(Dirt, 242, 242, 242);
     generateBlockTexture(Grass, 240, 243, 242);
-    generateBlockTexture(Plank, 53, 53, 53);
+    generateBlockTexture(Plank, 55, 55, 55);
     generateBlockTexture(Brick, 247, 247, 247);
+    generateBlockTexture(Cobblestone, 224, 224, 224);
+    generateBlockTexture(Sandstone, 32, 32, 32);
+    generateBlockTexture(Mossystone, 148, 148, 148);
+    generateBlockTexture(LightBlueWool, 33, 33, 33);
+    generateBlockTexture(OrangeWool, 34, 34, 34);
 }
 
 BlockBuilder::~BlockBuilder() {}

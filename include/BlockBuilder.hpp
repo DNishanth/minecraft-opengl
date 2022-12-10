@@ -21,7 +21,12 @@ enum BlockType {
     Dirt,
     Grass,
     Plank,
-    Brick
+    Brick,
+    Cobblestone,
+    Sandstone,
+    Mossystone,
+    LightBlueWool,
+    OrangeWool,
 };
 #define NUM_BLOCK_TYPES 3
 
