@@ -3,6 +3,10 @@
 
 #include "Transform.hpp"
 
+#define WIDTH 32
+#define HEIGHT 32
+#define DEPTH 32
+
 struct BlockData {
     bool isVisible;
     int blockType;
@@ -10,11 +14,11 @@ struct BlockData {
 };
 
 struct BlocksArray {
-    BlockData blocks[16][16][16];
+    BlockData blocks[WIDTH][HEIGHT][DEPTH];
 
     BlockData& getBlock(int x, int y, int z) {
         return blocks[x][y][z];
-    } 
+    }
 };
 
 #endif

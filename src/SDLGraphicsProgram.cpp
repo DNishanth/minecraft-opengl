@@ -118,17 +118,30 @@ bool SDLGraphicsProgram::InitGL() {
 }
 
 
+// TODO: Check block status before initializing
 void SDLGraphicsProgram::InitWorld() {
-    for (int x = 0; x < 16; x++) {
-        for (int y = 0; y < 16; y++) {
-            for (int z = 0; z < 16; z++) {
-                blocksArray.getBlock(x, y, z).isVisible = false;
-                blocksArray.getBlock(x, y, z).blockType = Dirt;
+    for (int x = 0; x < WIDTH; x++) {
+        for (int y = 0; y < HEIGHT; y++) {
+            for (int z = 0; z < DEPTH; z++) {
+                blocksArray.getBlock(x, y, z).isVisible = true;
+                blocksArray.getBlock(x, y, z).blockType = Mossystone;
                 blocksArray.getBlock(x, y, z).m_transform.Translate(x,y,z);
             }
         }
     }
-    blocksArray.getBlock(0, 0, 0).isVisible = true;
+    // for (int x = 0; x < WIDTH; x++) {
+    //     for (int y = 0; y < 10; y++) {
+    //         for (int z = 0; z < HEIGHT; z++) {
+    //             blocksArray.getBlock(x, y, z).isVisible = true;
+    //             blocksArray.getBlock(x, y, z).blockType = Mossystone;
+    //         }
+    //     }
+    // }
+    std::cout << "WIDTH: " << WIDTH <<  std::endl;
+    std::cout << "HEIGHT: " << HEIGHT << std::endl;
+    std::cout << "DEPTH: "  << DEPTH << std::endl;
+    // blocksArray.getBlock(0, 0, 0).isVisible = true;
+    // blocksArray.getBlock(0, 0, 0).blockType = Mossystone;
 }
 
 
@@ -304,18 +317,17 @@ void SDLGraphicsProgram::GetSelection(int mouseX, int mouseY, int clickType) {
 
     glm::mat4 m_projectionMatrix = glm::perspective(45.0f, (float) m_screenWidth/(float)m_screenHeight, 0.1f, 100.0f);
     int blockIndex = 0;
-    for (int x = 0; x < 16; x++) {
-        for (int y = 0; y < 16; y++) {
-            for (int z = 0; z < 16; z++) {
+    for (int x = 0; x < WIDTH; x++) {
+        for (int y = 0; y < HEIGHT; y++) {
+            for (int z = 0; z < DEPTH; z++) {
                 BlockData block = blocksArray.getBlock(x, y, z);
                 if (block.isVisible) {
-                    std::cout << "Should only be once" << std::endl;
                     // Update(block, 1280, 720);
                     // TODO: do this in blockbuilder pass in shader used
                     selectionBuffer.m_shader.SetUniformMatrix4fv("model", block.m_transform.GetTransformMatrix());
                     selectionBuffer.m_shader.SetUniformMatrix4fv("view", &Camera::Instance().GetWorldToViewmatrix()[0][0]);
                     selectionBuffer.m_shader.SetUniformMatrix4fv("projection", &m_projectionMatrix[0][0]);
-                    for (int i = 0; i <= 30; i += 6) {
+                    for (int i = 0; i <= 30; i += 6) { // TODO: simplify
                         int r = ((blockIndex + (i/6)) & 0x000000FF) >>  0; // Convert block index to 3 digits from 0-255
                         int g = ((blockIndex + (i/6)) & 0x0000FF00) >>  8; // http://www.opengl-tutorial.org/miscellaneous/clicking-on-objects/picking-with-an-opengl-hack/
                         int b = ((blockIndex + (i/6)) & 0x00FF0000) >> 16;
@@ -342,26 +354,32 @@ void SDLGraphicsProgram::GetSelection(int mouseX, int mouseY, int clickType) {
     // TODO: Make sure background color can't be selected
     int selectedBlockIndex = selectionBuffer.ReadPixel(mouseX, m_screenHeight - mouseY - 1);
     selectionBuffer.Unbind();
-    int face = selectedBlockIndex % 6;
-    int blockID = selectedBlockIndex - face;
-    selectedBlockIndex = blockID / 6;
-    std::cout << "\nSelected index: " << selectedBlockIndex << std::endl;
-    std::cout << "Block ID: " << blockID << std::endl;
-    std::cout << "Face: " << face << std::endl;
+    // std::cout << "\nRead pixel index: " << selectedBlockIndex << std::endl;
+    int face = selectedBlockIndex % 6; // 0 - 5 face of block
+    int blockID = selectedBlockIndex - face; //  block starting index
+    selectedBlockIndex = blockID / 6; // x y z conversion
+    // std::cout << "Selected index: " << selectedBlockIndex << std::endl;
+    // std::cout << "Block ID: " << blockID << std::endl;
+    // std::cout << "Face: " << face << std::endl;
     if (selectedBlockIndex > 4096* 8) {
+        std::cout << "Selecting background" << std::endl;
         return;
     }
-    int z = selectedBlockIndex % 16;
-    int y = (selectedBlockIndex / 16) % 16;
-    int x = selectedBlockIndex / 256;
-    std::cout << "Block X: " << x << " Y: " << y << " Z: " << z << std::endl;
+    int z = selectedBlockIndex % DEPTH; // 4
+    int y = (selectedBlockIndex % (DEPTH * HEIGHT)) / DEPTH; // 4
+    int x = selectedBlockIndex / (DEPTH * HEIGHT); // 4 * 32
+    // int z = selectedBlockIndex % 16;
+    // int y = (selectedBlockIndex / 16) % 16;
+    // int x = selectedBlockIndex / (16 * 16);
+    std::cout << "USING DEFINE: Block X: " << x << " Y: " << y << " Z: " << z << std::endl;
     if (clickType == SDL_BUTTON_LEFT) {
-        std::cout << "Handling left click" << std::endl;
+        // std::cout << "Handling left click" << std::endl;
+        std::cout << "Selected index: " << selectedBlockIndex << std::endl;
         blocksArray.getBlock(x, y, z).isVisible = false;
     }
     // debug face selection
     if (clickType == SDL_BUTTON_RIGHT) {
-        std::cout << "Handling right click" << std::endl;
+        // std::cout << "Handling right click" << std::endl;
         if (face == 0) {
             std::cout << "Front" << std::endl;
             z += 1;
@@ -386,8 +404,11 @@ void SDLGraphicsProgram::GetSelection(int mouseX, int mouseY, int clickType) {
             std::cout << "Left" << std::endl;
             x -= 1;
         }
+        std::cout << "Placing on Block X: " << x << " Y: " << y << " Z: " << z << std::endl;
+        std::cout << "Block type is: " << blocksArray.getBlock(x, y, z).blockType << std::endl;
         blocksArray.getBlock(x, y, z).blockType = activeBlock;
         blocksArray.getBlock(x, y, z).isVisible = true;
+        std::cout << "Block type is: " << blocksArray.getBlock(x, y, z).blockType << std::endl;
     }
 }
 

@@ -1,6 +1,6 @@
 /** @file Camera.hpp
  *  @brief Sets up an OpenGL camera.
- *  
+ *
  *  Sets up an OpenGL Camera. The camera is what
  *  sets up our 'view' matrix.
  *

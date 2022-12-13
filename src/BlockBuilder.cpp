@@ -161,9 +161,9 @@ void BlockBuilder::Render(BlocksArray& blocksArray) {
 	// TODO: Choose which vertices/indices to use in here or update based on type of block given
 	// TODO: Only set rendering block if it changes
     // Render data
-    for (int x = 0; x < 16; x++) {
-        for (int y = 0; y < 16; y++) {
-            for (int z = 0; z < 16; z++) {
+    for (int x = 0; x < WIDTH; x++) {
+        for (int y = 0; y < HEIGHT; y++) {
+            for (int z = 0; z < DEPTH; z++) {
                 BlockData block = blocksArray.getBlock(x, y, z);
                 if (block.isVisible) {
                     glVertexAttribPointer(1, 2, GL_FLOAT, GL_TRUE, sizeof(float)*2, (GLvoid*)(48 * block.blockType * sizeof(GLfloat)));

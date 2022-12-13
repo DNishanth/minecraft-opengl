@@ -26,7 +26,7 @@ class SelectionFrameBuffer {
         GLuint m_fbo;
 
         // Texturebuffer ID
-        GLuint m_colorBuffer_ID; 
+        GLuint m_colorBuffer_ID;
 
         // Renderbuffer ID
         GLuint m_rbo;
