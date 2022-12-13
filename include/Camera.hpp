@@ -11,8 +11,9 @@
 #define CAMERA_HPP
 
 #include "glm/glm.hpp"
+#include "BlockData.hpp"
 
-class Camera{
+class Camera {
 public:
 	// Singleton pattern for having one single camera.
 	static Camera& Instance();
@@ -21,12 +22,12 @@ public:
     glm::mat4 GetWorldToViewmatrix() const;
     // Move the camera around
     void MouseLook(int mouseX, int mouseY);
-    void MoveForward(float speed);
-    void MoveBackward(float speed);
-    void MoveLeft(float speed);
-    void MoveRight(float speed);
-    void MoveUp(float speed);
-    void MoveDown(float speed);
+    void MoveForward(float speed, BlocksArray& BlocksArray);
+    void MoveBackward(float speed, BlocksArray& BlocksArray);
+    void MoveLeft(float speed, BlocksArray& BlocksArray);
+    void MoveRight(float speed, BlocksArray& BlocksArray);
+    void MoveUp(float speed, BlocksArray& BlocksArray);
+    void MoveDown(float speed, BlocksArray& BlocksArray);
     // Returns the 'eye' position which
     // is where the camera is.
     float GetEyeXPosition();
@@ -41,6 +42,8 @@ private:
     // not be able to construct any cameras,
     // this how we ensure only one is ever created
     Camera();
+
+    bool CollisionAt(glm::vec3 position, BlocksArray& BlocksArray);
     // Track the old mouse position
     glm::vec2 m_oldMousePosition;
     // Where is our camera positioned

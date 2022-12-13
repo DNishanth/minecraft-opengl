@@ -2,10 +2,11 @@
 #define BLOCKDATA_HPP
 
 #include "Transform.hpp"
+#include <iostream>
 
-#define WIDTH 32
-#define HEIGHT 32
-#define DEPTH 32
+#define WIDTH 10
+#define HEIGHT 10
+#define DEPTH 10
 
 struct BlockData {
     bool isVisible;
@@ -14,10 +15,23 @@ struct BlockData {
 };
 
 struct BlocksArray {
-    BlockData blocks[WIDTH][HEIGHT][DEPTH];
+    BlockData* blocks;
+
+    BlocksArray() {
+        blocks = new BlockData[WIDTH * HEIGHT * DEPTH];
+    }
+
+    ~BlocksArray() {
+        std::cout << "Freeing BlockArray" << std::endl;
+        delete[] blocks;
+    }
+
+    bool isValidBlock(int x, int y, int z) {
+        return x >= 0 && x < WIDTH && y >= 0 && y < HEIGHT && z >= 0 && z < DEPTH;
+    }
 
     BlockData& getBlock(int x, int y, int z) {
-        return blocks[x][y][z];
+        return blocks[z + y*DEPTH + x*HEIGHT*DEPTH];
     }
 };
 

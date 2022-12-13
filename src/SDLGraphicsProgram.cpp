@@ -41,6 +41,7 @@ SDLGraphicsProgram::SDLGraphicsProgram(int w, int h):m_screenWidth(w),m_screenHe
                                 m_screenWidth,
                                 m_screenHeight,
                                 SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN );
+        // SDL_SetRelativeMouseMode(SDL_bool::SDL_TRUE);
 
 		// Check if Window did not create.
 		if (m_window == NULL ) {
@@ -114,6 +115,7 @@ bool SDLGraphicsProgram::InitGL() {
     // for us that is stored every frame.
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_TEXTURE_2D);
+    glEnable(GL_CULL_FACE);
 	return success;
 }
 
@@ -225,7 +227,7 @@ void SDLGraphicsProgram::Loop() {
 			if (e.type == SDL_KEYDOWN) {
 				switch (e.key.keysym.sym) {
 					case SDLK_q:
-						quit = true;
+						// quit = true;
 						break;
 					case SDLK_i:
 						if (showWireframe) {
@@ -238,22 +240,22 @@ void SDLGraphicsProgram::Loop() {
 						}
 						break;
                     case SDLK_a:
-                        Camera::Instance().MoveLeft(cameraSpeed);
+                        Camera::Instance().MoveLeft(cameraSpeed, blocksArray);
                         break;
                     case SDLK_d:
-                        Camera::Instance().MoveRight(cameraSpeed);
+                        Camera::Instance().MoveRight(cameraSpeed, blocksArray);
                         break;
                     case SDLK_w:
-                        Camera::Instance().MoveForward(cameraSpeed);
+                        Camera::Instance().MoveForward(cameraSpeed, blocksArray);
                         break;
                     case SDLK_s:
-                        Camera::Instance().MoveBackward(cameraSpeed);
+                        Camera::Instance().MoveBackward(cameraSpeed, blocksArray);
                         break;
                     case SDLK_SPACE:
-                        Camera::Instance().MoveUp(cameraSpeed);
+                        Camera::Instance().MoveUp(cameraSpeed, blocksArray);
                         break;
                     case SDLK_LALT:
-                        Camera::Instance().MoveDown(cameraSpeed);
+                        Camera::Instance().MoveDown(cameraSpeed, blocksArray);
                         break;
                     case SDLK_p:
                         std::cout << "Position: "
@@ -261,6 +263,14 @@ void SDLGraphicsProgram::Loop() {
                         << Camera::Instance().GetEyeYPosition() << " "
                         << Camera::Instance().GetEyeZPosition() << " "
                         << std::endl;
+                        {
+                            int x = Camera::Instance().GetEyeXPosition();
+                            int y = Camera::Instance().GetEyeYPosition();
+                            int z = Camera::Instance().GetEyeZPosition();
+                            if (blocksArray.isValidBlock(x, y, z) && blocksArray.getBlock(x, y, z).isVisible) {
+                                std::cout << "Inside block" << std::endl;
+                            }
+                        }
                         break;
                     case SDLK_1:
                         activeBlock = Dirt;
@@ -404,11 +414,15 @@ void SDLGraphicsProgram::GetSelection(int mouseX, int mouseY, int clickType) {
             std::cout << "Left" << std::endl;
             x -= 1;
         }
-        std::cout << "Placing on Block X: " << x << " Y: " << y << " Z: " << z << std::endl;
-        std::cout << "Block type is: " << blocksArray.getBlock(x, y, z).blockType << std::endl;
-        blocksArray.getBlock(x, y, z).blockType = activeBlock;
-        blocksArray.getBlock(x, y, z).isVisible = true;
-        std::cout << "Block type is: " << blocksArray.getBlock(x, y, z).blockType << std::endl;
+        if (blocksArray.isValidBlock(x, y, z)) {
+            std::cout << "Placing on Block X: " << x << " Y: " << y << " Z: " << z << std::endl;
+            std::cout << "Block type is: " << blocksArray.getBlock(x, y, z).blockType << std::endl;
+            blocksArray.getBlock(x, y, z).blockType = activeBlock;
+            blocksArray.getBlock(x, y, z).isVisible = true;
+        }
+        else {
+            std::cout << "Invalid block" << std::endl;
+        }
     }
 }
 

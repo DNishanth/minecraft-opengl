@@ -45,63 +45,87 @@ void Camera::MouseLook(int mouseX, int mouseY){
 
     // // Update our old position after we have made changes
     // m_oldMousePosition = newMousePosition;
-    
 }
 
-void Camera::MoveForward(float speed){
-    m_eyePosition += speed * m_viewDirection;
+bool Camera::CollisionAt(glm::vec3 position, BlocksArray& blocksArray) {
+    int x = position.x;
+    int y = position.y;
+    int z = position.z;
+    return blocksArray.isValidBlock(x, y, z) && blocksArray.getBlock(x, y, z).isVisible;
 }
 
-void Camera::MoveBackward(float speed){
-    m_eyePosition -= speed * m_viewDirection;
+void Camera::MoveForward(float speed, BlocksArray& blocksArray) {
+    glm::vec3 newEyePosition = m_eyePosition + (speed * m_viewDirection);
+    if (!CollisionAt(newEyePosition, blocksArray)) {
+        m_eyePosition = newEyePosition;
+    }
 }
 
-void Camera::MoveLeft(float speed){
-    m_eyePosition -= speed * glm::normalize(glm::cross(m_viewDirection, m_upVector));
+void Camera::MoveBackward(float speed, BlocksArray& blocksArray) {
+    glm::vec3 newEyePosition = m_eyePosition - (speed * m_viewDirection);
+    if (!CollisionAt(newEyePosition, blocksArray)) {
+        m_eyePosition = newEyePosition;
+    }
 }
 
-void Camera::MoveRight(float speed){
-    m_eyePosition += speed * glm::normalize(glm::cross(m_viewDirection, m_upVector));
+void Camera::MoveLeft(float speed, BlocksArray& blocksArray) {
+    glm::vec3 newEyePosition = m_eyePosition - speed * glm::normalize(glm::cross(m_viewDirection, m_upVector));
+    if (!CollisionAt(newEyePosition, blocksArray)) {
+        m_eyePosition = newEyePosition;
+    }
 }
 
-void Camera::MoveUp(float speed){
-    m_eyePosition.y += speed;
+void Camera::MoveRight(float speed, BlocksArray& blocksArray) {
+    glm::vec3 newEyePosition = m_eyePosition + speed * glm::normalize(glm::cross(m_viewDirection, m_upVector));
+    if (!CollisionAt(newEyePosition, blocksArray)) {
+        m_eyePosition = newEyePosition;
+    }
 }
 
-void Camera::MoveDown(float speed){
-    m_eyePosition.y -= speed;
+void Camera::MoveUp(float speed, BlocksArray& blocksArray) {
+    glm::vec3 newEyePosition = glm::vec3(m_eyePosition.x, m_eyePosition.y + speed, m_eyePosition.z);
+    if (!CollisionAt(newEyePosition, blocksArray)) {
+        m_eyePosition = newEyePosition;
+    }
 }
 
-float Camera::GetEyeXPosition(){
+void Camera::MoveDown(float speed, BlocksArray& blocksArray) {
+    glm::vec3 newEyePosition = glm::vec3(m_eyePosition.x, m_eyePosition.y - speed, m_eyePosition.z);
+    if (!CollisionAt(newEyePosition, blocksArray)) {
+        m_eyePosition = newEyePosition;
+    }
+}
+
+float Camera::GetEyeXPosition() {
     return m_eyePosition.x;
 }
 
-float Camera::GetEyeYPosition(){
+float Camera::GetEyeYPosition() {
     return m_eyePosition.y;
 }
 
-float Camera::GetEyeZPosition(){
+float Camera::GetEyeZPosition() {
     return m_eyePosition.z;
 }
 
-float Camera::GetViewXDirection(){
+float Camera::GetViewXDirection() {
     return m_viewDirection.x;
 }
 
-float Camera::GetViewYDirection(){
+float Camera::GetViewYDirection() {
     return m_viewDirection.y;
 }
 
-float Camera::GetViewZDirection(){
+float Camera::GetViewZDirection() {
     return m_viewDirection.z;
 }
 
 Camera::Camera() {
 	// Position us at the origin.
-    m_eyePosition = glm::vec3(0.0f,0.0f, 0.0f);
+    m_eyePosition = glm::vec3(-1.0f, 0.0f, -1.0f);
 	// Looking down along the z-axis initially.
 	// Remember, this is negative because we are looking 'into' the scene.
-    m_viewDirection = glm::vec3(0.0f,0.0f, -1.0f);
+    m_viewDirection = glm::vec3(0.0f, 0.0f, -1.0f);
 	// For now--our upVector always points up along the y-axis
     m_upVector = glm::vec3(0.0f, 1.0f, 0.0f);
     m_oldMousePosition = glm::vec2(0.0f, 0.0f);
