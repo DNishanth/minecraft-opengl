@@ -33,6 +33,10 @@ struct BlocksArray {
     BlockData& getBlock(int x, int y, int z) {
         return blocks[z + y*DEPTH + x*HEIGHT*DEPTH];
     }
+
+    bool isCoveredBlock(int x, int y, int z) {
+        return isValidBlock(x, y, z) && getBlock(x, y, z).isVisible;
+    }
 };
 
 #endif

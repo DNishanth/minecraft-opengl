@@ -132,16 +132,26 @@ void SDLGraphicsProgram::InitWorld() {
         }
     }
     // for (int x = 0; x < WIDTH; x++) {
-    //     for (int y = 0; y < 10; y++) {
-    //         for (int z = 0; z < HEIGHT; z++) {
-    //             blocksArray.getBlock(x, y, z).isVisible = true;
-    //             blocksArray.getBlock(x, y, z).blockType = Mossystone;
-    //         }
+    //     for (int z = 0; z < DEPTH; z++) {
+    //         blocksArray.getBlock(x, 0, z).isVisible = true;
+    //         blocksArray.getBlock(x, 0, z).blockType = Mossystone;
     //     }
     // }
-    std::cout << "WIDTH: " << WIDTH <<  std::endl;
-    std::cout << "HEIGHT: " << HEIGHT << std::endl;
-    std::cout << "DEPTH: "  << DEPTH << std::endl;
+    // if (!blocksArray.isValidBlock(x - 1, y, z)) {
+    //     currBlock.isVisible = false;
+    // }
+    for (int x = 0; x < WIDTH; x++) {
+        for (int y = 0; y < HEIGHT; y++) {
+            for (int z = 0; z < DEPTH; z++) {
+                BlockData currBlock = blocksArray.getBlock(x, y, z);
+                if (blocksArray.isCoveredBlock(x - 1, y, z) && blocksArray.isCoveredBlock(x + 1, y, z) &&
+                    blocksArray.isCoveredBlock(x, y - 1, z) && blocksArray.isCoveredBlock(x, y + 1, z) &&
+                    blocksArray.isCoveredBlock(x, y, z - 1) && blocksArray.isCoveredBlock(x, y, z + 1)) {
+                    currBlock.isVisible = false;
+                }
+            }
+        }
+    }
     // blocksArray.getBlock(0, 0, 0).isVisible = true;
     // blocksArray.getBlock(0, 0, 0).blockType = Mossystone;
 }
@@ -172,7 +182,7 @@ void SDLGraphicsProgram::Render() {
     // Initialize clear color
     // This is the background of the screen.
     glViewport(0, 0, m_screenWidth, m_screenHeight);
-    glClearColor(0.2f, 0.2f, 0.2f, 1.f);
+    glClearColor(135.0f/255.0f, 206.0f/255.0f, 235.0f/255.0f, 1.f);
     // Clear color buffer and Depth Buffer
     // Remember that the 'depth buffer' is our
     // z-buffer that figures out how far away items are every frame
@@ -192,7 +202,7 @@ void SDLGraphicsProgram::Loop() {
     // If this is quit = 'true' then the program terminates.
     bool quit = false;
 	bool showWireframe = false;
-    float cameraSpeed = 0.5f;
+    float cameraSpeed = 1.0f;
     // Event handler that handles various events in SDL
     // that are related to input and output
     SDL_Event e;
@@ -323,10 +333,11 @@ void SDLGraphicsProgram::GetSelection(int mouseX, int mouseY, int clickType) {
     // TODO: distance check for selection
     // TODO: Better design is to have block builder take in shader to update
     selectionBuffer.Bind();
+    glClearColor(0.0f, 0.0f, 0.0f, 1.f);
   	glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
 
     glm::mat4 m_projectionMatrix = glm::perspective(45.0f, (float) m_screenWidth/(float)m_screenHeight, 0.1f, 100.0f);
-    int blockIndex = 0;
+    int blockIndex = 1; // Background is index 0
     for (int x = 0; x < WIDTH; x++) {
         for (int y = 0; y < HEIGHT; y++) {
             for (int z = 0; z < DEPTH; z++) {
@@ -362,15 +373,19 @@ void SDLGraphicsProgram::GetSelection(int mouseX, int mouseY, int clickType) {
     }
     // TODO: change to center screen
     // TODO: Make sure background color can't be selected
-    int selectedBlockIndex = selectionBuffer.ReadPixel(mouseX, m_screenHeight - mouseY - 1);
+    int selectedBlockIndex = selectionBuffer.ReadPixel(mouseX, m_screenHeight - mouseY - 1) - 1;
     selectionBuffer.Unbind();
+    if (selectedBlockIndex == -1) {
+        std::cout << "Selecting background" << std::endl;
+        return;
+    }
     // std::cout << "\nRead pixel index: " << selectedBlockIndex << std::endl;
     int face = selectedBlockIndex % 6; // 0 - 5 face of block
     int blockID = selectedBlockIndex - face; //  block starting index
     selectedBlockIndex = blockID / 6; // x y z conversion
-    // std::cout << "Selected index: " << selectedBlockIndex << std::endl;
-    // std::cout << "Block ID: " << blockID << std::endl;
-    // std::cout << "Face: " << face << std::endl;
+    std::cout << "Selected index: " << selectedBlockIndex << std::endl;
+    std::cout << "Block ID: " << blockID << std::endl;
+    std::cout << "Face: " << face << std::endl;
     if (selectedBlockIndex > 4096* 8) {
         std::cout << "Selecting background" << std::endl;
         return;
