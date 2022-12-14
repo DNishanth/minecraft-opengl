@@ -37,6 +37,7 @@ public:
     float GetViewXDirection();
     float GetViewYDirection();
     float GetViewZDirection();
+    void ToggleCollision();
 private:
 	// Constructor is private because we should
     // not be able to construct any cameras,
@@ -57,6 +58,7 @@ private:
     glm::vec3 m_upVector;
     float yaw;
     float pitch;
+    bool collisionEnabled;
 };
 
 #endif

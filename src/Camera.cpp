@@ -5,12 +5,12 @@
 
 #include <iostream>
 
-Camera& Camera::Instance(){
+Camera& Camera::Instance() {
     static Camera* instance = new Camera();
     return *instance;
 }
 
-void Camera::MouseLook(int mouseX, int mouseY){
+void Camera::MouseLook(int mouseX, int mouseY) {
     float sensitivity = 0.5f;
     float xDelta = (mouseX - m_oldMousePosition.x) * sensitivity;
     float yDelta = (m_oldMousePosition.y - mouseY) * sensitivity;
@@ -51,7 +51,10 @@ bool Camera::CollisionAt(glm::vec3 position, BlocksArray& blocksArray) {
     int x = position.x;
     int y = position.y;
     int z = position.z;
-    return blocksArray.isValidBlock(x, y, z) && blocksArray.getBlock(x, y, z).isVisible;
+    if (collisionEnabled) {
+        return blocksArray.isValidBlock(x, y, z) && blocksArray.getBlock(x, y, z).isVisible;
+    }
+    return false;
 }
 
 void Camera::MoveForward(float speed, BlocksArray& blocksArray) {
@@ -120,6 +123,10 @@ float Camera::GetViewZDirection() {
     return m_viewDirection.z;
 }
 
+void Camera::ToggleCollision() {
+    collisionEnabled = !collisionEnabled;
+}
+
 Camera::Camera() {
 	// Position us at the origin.
     m_eyePosition = glm::vec3(-1.0f, 0.0f, -1.0f);
@@ -131,6 +138,7 @@ Camera::Camera() {
     m_oldMousePosition = glm::vec2(0.0f, 0.0f);
     yaw = -90.0f;
     pitch = 0.0f;
+    collisionEnabled = true;
 }
 
 glm::mat4 Camera::GetWorldToViewmatrix() const{

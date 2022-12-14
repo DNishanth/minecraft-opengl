@@ -51,6 +51,12 @@ struct BlocksArray {
     bool isCoveredBlock(int x, int y, int z) {
         return isValidBlock(x, y, z) && getBlock(x, y, z).blockType != Empty;
     }
+
+    void makeVisible(int x, int y, int z) {
+        if (isValidBlock(x, y, z) && getBlock(x, y, z).blockType != Empty) {
+            getBlock(x, y, z).isVisible = true;
+        }
+    }
 };
 
 #endif
