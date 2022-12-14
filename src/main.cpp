@@ -5,10 +5,10 @@
 // Functionality that we created
 #include "SDLGraphicsProgram.hpp"
 
-int main(int argc, char** argv){
+int main(int argc, char** argv) {
 
 	// Create an instance of an object for a SDLGraphicsProgram
-	SDLGraphicsProgram mySDLGraphicsProgram(1280,720);
+	SDLGraphicsProgram mySDLGraphicsProgram(1280, 720);
 	// Run our program forever
 	mySDLGraphicsProgram.Loop();
 	// When our program ends, it will exit scope, the

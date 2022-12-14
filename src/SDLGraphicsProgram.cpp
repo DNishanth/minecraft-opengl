@@ -6,6 +6,7 @@
 #include "SDLGraphicsProgram.hpp"
 #include "Camera.hpp"
 #include "SelectionFrameBuffer.hpp"
+#include "Image.hpp"
 
 
 // Initialization function
@@ -125,35 +126,25 @@ void SDLGraphicsProgram::InitWorld() {
     for (int x = 0; x < WIDTH; x++) {
         for (int y = 0; y < HEIGHT; y++) {
             for (int z = 0; z < DEPTH; z++) {
-                blocksArray.getBlock(x, y, z).isVisible = true;
-                blocksArray.getBlock(x, y, z).blockType = Mossystone;
-                blocksArray.getBlock(x, y, z).m_transform.Translate(x,y,z);
+                blocksArray.getBlock(x, y, z).isVisible = false;
+                // blocksArray.getBlock(x, y, z).isBorder = true;
+                blocksArray.getBlock(x, y, z).blockType = Grass;
+                blocksArray.getBlock(x, y, z).m_transform.Translate(x, y, z);
             }
         }
     }
-    // for (int x = 0; x < WIDTH; x++) {
-    //     for (int z = 0; z < DEPTH; z++) {
-    //         blocksArray.getBlock(x, 0, z).isVisible = true;
-    //         blocksArray.getBlock(x, 0, z).blockType = Mossystone;
-    //     }
-    // }
-    // if (!blocksArray.isValidBlock(x - 1, y, z)) {
-    //     currBlock.isVisible = false;
-    // }
+
+    Image heightMap("terrain_height.ppm");
+    heightMap.LoadPPM(true);
+    int height = 0;
     for (int x = 0; x < WIDTH; x++) {
-        for (int y = 0; y < HEIGHT; y++) {
-            for (int z = 0; z < DEPTH; z++) {
-                BlockData currBlock = blocksArray.getBlock(x, y, z);
-                if (blocksArray.isCoveredBlock(x - 1, y, z) && blocksArray.isCoveredBlock(x + 1, y, z) &&
-                    blocksArray.isCoveredBlock(x, y - 1, z) && blocksArray.isCoveredBlock(x, y + 1, z) &&
-                    blocksArray.isCoveredBlock(x, y, z - 1) && blocksArray.isCoveredBlock(x, y, z + 1)) {
-                    currBlock.isVisible = false;
-                }
+        for (int z = 0; z < DEPTH; z++) {
+            height = heightMap.GetPixelR(x, z) / 5;
+            if (height < HEIGHT) {
+                blocksArray.getBlock(x, height, z).isVisible = true;
             }
         }
     }
-    // blocksArray.getBlock(0, 0, 0).isVisible = true;
-    // blocksArray.getBlock(0, 0, 0).blockType = Mossystone;
 }
 
 
@@ -316,8 +307,7 @@ void SDLGraphicsProgram::Loop() {
 		// Update our scene
 		Update();
 		// Render using OpenGL
-	    Render(); 	// TODO: potentially move this depending on your logic
-					// for how you handle drawing a triangle or rectangle.
+	    Render();
       	//Update screen of our specified window
       	SDL_GL_SwapWindow(GetSDLWindow());
     }
@@ -376,27 +366,23 @@ void SDLGraphicsProgram::GetSelection(int mouseX, int mouseY, int clickType) {
     int selectedBlockIndex = selectionBuffer.ReadPixel(mouseX, m_screenHeight - mouseY - 1) - 1;
     selectionBuffer.Unbind();
     if (selectedBlockIndex == -1) {
-        std::cout << "Selecting background" << std::endl;
+        // std::cout << "Selecting background" << std::endl;
         return;
     }
     // std::cout << "\nRead pixel index: " << selectedBlockIndex << std::endl;
     int face = selectedBlockIndex % 6; // 0 - 5 face of block
     int blockID = selectedBlockIndex - face; //  block starting index
     selectedBlockIndex = blockID / 6; // x y z conversion
-    std::cout << "Selected index: " << selectedBlockIndex << std::endl;
-    std::cout << "Block ID: " << blockID << std::endl;
-    std::cout << "Face: " << face << std::endl;
-    if (selectedBlockIndex > 4096* 8) {
-        std::cout << "Selecting background" << std::endl;
-        return;
-    }
+    // std::cout << "Selected index: " << selectedBlockIndex << std::endl;
+    // std::cout << "Block ID: " << blockID << std::endl;
+    // std::cout << "Face: " << face << std::endl;
     int z = selectedBlockIndex % DEPTH; // 4
     int y = (selectedBlockIndex % (DEPTH * HEIGHT)) / DEPTH; // 4
     int x = selectedBlockIndex / (DEPTH * HEIGHT); // 4 * 32
     // int z = selectedBlockIndex % 16;
     // int y = (selectedBlockIndex / 16) % 16;
     // int x = selectedBlockIndex / (16 * 16);
-    std::cout << "USING DEFINE: Block X: " << x << " Y: " << y << " Z: " << z << std::endl;
+    // std::cout << "USING DEFINE: Block X: " << x << " Y: " << y << " Z: " << z << std::endl;
     if (clickType == SDL_BUTTON_LEFT) {
         // std::cout << "Handling left click" << std::endl;
         std::cout << "Selected index: " << selectedBlockIndex << std::endl;

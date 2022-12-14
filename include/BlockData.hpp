@@ -4,9 +4,9 @@
 #include "Transform.hpp"
 #include <iostream>
 
-#define WIDTH 10
+#define WIDTH 100
 #define HEIGHT 10
-#define DEPTH 10
+#define DEPTH 100
 
 struct BlockData {
     bool isVisible;
