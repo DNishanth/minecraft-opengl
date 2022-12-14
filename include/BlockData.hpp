@@ -4,9 +4,9 @@
 #include "Transform.hpp"
 #include <iostream>
 
-#define WIDTH 10
+#define WIDTH 100
 #define HEIGHT 100
-#define DEPTH 10
+#define DEPTH 100
 
 enum BlockType {
     Dirt,
@@ -20,7 +20,6 @@ enum BlockType {
     OrangeWool,
     Empty
 };
-#define NUM_BLOCK_TYPES 3
 
 struct BlockData {
     bool isVisible;

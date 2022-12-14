@@ -126,26 +126,33 @@ void SDLGraphicsProgram::InitWorld() {
     for (int x = 0; x < WIDTH; x++) {
         for (int y = 0; y < HEIGHT; y++) {
             for (int z = 0; z < DEPTH; z++) {
-                blocksArray.getBlock(x, y, z).isVisible = true;
-                // blocksArray.getBlock(x, y, z).isBorder = true;
-                blocksArray.getBlock(x, y, z).blockType = Grass;
+                blocksArray.getBlock(x, y, z).isVisible = false;
+                blocksArray.getBlock(x, y, z).blockType = Empty;
                 blocksArray.getBlock(x, y, z).m_transform.Translate(x, y, z);
             }
         }
     }
 
-    // Image heightMap("terrain_height.ppm");
-    // heightMap.LoadPPM(true);
-    // int height = 0;
-    // for (int x = 0; x < WIDTH; x++) {
-    //     for (int z = 0; z < DEPTH; z++) {
-    //         height = heightMap.GetPixelR(x, z) / 5;
-    //         if (height < HEIGHT) {
-    //             blocksArray.getBlock(x, height, z).isVisible = true;
-    //         }
-    //     }
-    // }
+    Image heightMap("terrain_height.ppm");
+    heightMap.LoadPPM(true);
+    int height = 0;
+    for (int x = 0; x < WIDTH; x++) {
+        for (int z = 0; z < DEPTH; z++) {
+            height = heightMap.GetPixelR(x, z) / 1;
+            if (height < HEIGHT) {
+                blocksArray.getBlock(x, height, z).isVisible = true;
+                blocksArray.getBlock(x, height, z).blockType = Grass;
+                for (int y = 0; y < height; y++) {
+                    blocksArray.getBlock(x, y, z).isVisible = true;
+                    blocksArray.getBlock(x, y, z).blockType = Dirt;
+                }
+            }
+        }
+    }
 
+
+    // TODO: call from block array/simplify
+    // Hide all surrounded blocks
     for (int x = 0; x < WIDTH; x++) {
         for (int y = 0; y < HEIGHT; y++) {
             for (int z = 0; z < DEPTH; z++) {
@@ -155,8 +162,8 @@ void SDLGraphicsProgram::InitWorld() {
                     blocksArray.isCoveredBlock(x, y, z - 1) && blocksArray.isCoveredBlock(x, y, z + 1)) {
                     currBlock.isVisible = false;
                     // currBlock.blockType = Mossystone;
-                    std::cout << "hidden block" << std::endl;
-                    std::cout << "x: " << x << " y: " << y << " z: " << z << std::endl;
+                    // std::cout << "hidden block" << std::endl;
+                    // std::cout << "x: " << x << " y: " << y << " z: " << z << std::endl;
                 }
             }
         }
@@ -335,14 +342,6 @@ void SDLGraphicsProgram::Loop() {
     SDL_StopTextInput();
 }
 
-// void SDLGraphicsProgram::revealSurroundingBlocks(int x, int y, int z) {
-//     blocksArray.makeVisible(x - 1, y, z);
-//     blocksArray.makeVisible(x + 1, y, z);
-//     blocksArray.makeVisible(x, y - 1, z);
-//     blocksArray.makeVisible(x, y + 1, z);
-//     blocksArray.makeVisible(x, y, z - 1);
-//     blocksArray.makeVisible(x, y, z + 1);
-// }
 
 void SDLGraphicsProgram::GetSelection(int mouseX, int mouseY, int clickType) {
     // TODO: Does this fit better in selection buffer class?

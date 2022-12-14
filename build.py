@@ -3,8 +3,8 @@ import os
 import platform
 
 # (1)==================== COMMON CONFIGURATION OPTIONS ======================= #
-# COMPILER="g++ -O2 -std=c++17"   # The compiler we want to use
-COMPILER="g++ -g -std=c++17"   # The compiler we want to use
+COMPILER="g++ -O2 -std=c++17"   # The compiler we want to use
+# COMPILER="g++ -g -std=c++17"   # The compiler we want to use
                                 #(You may try g++ if you have trouble)
 SOURCE="./src/*.cpp"    # Where the source code lives
 EXECUTABLE="mc"        # Name of the final executable
