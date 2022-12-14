@@ -61,7 +61,7 @@ private:
     BlocksArray blocksArray;
     BlockType activeBlock;
 
-    void updateSurroundingBlocks(int x, int y, int z);
+    // void updateSurroundingBlocks(int x, int y, int z);
 };
 
 #endif

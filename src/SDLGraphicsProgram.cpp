@@ -335,14 +335,14 @@ void SDLGraphicsProgram::Loop() {
     SDL_StopTextInput();
 }
 
-void SDLGraphicsProgram::updateSurroundingBlocks(int x, int y, int z) {
-    blocksArray.makeVisible(x - 1, y, z);
-    blocksArray.makeVisible(x + 1, y, z);
-    blocksArray.makeVisible(x, y - 1, z);
-    blocksArray.makeVisible(x, y + 1, z);
-    blocksArray.makeVisible(x, y, z - 1);
-    blocksArray.makeVisible(x, y, z + 1);
-}
+// void SDLGraphicsProgram::revealSurroundingBlocks(int x, int y, int z) {
+//     blocksArray.makeVisible(x - 1, y, z);
+//     blocksArray.makeVisible(x + 1, y, z);
+//     blocksArray.makeVisible(x, y - 1, z);
+//     blocksArray.makeVisible(x, y + 1, z);
+//     blocksArray.makeVisible(x, y, z - 1);
+//     blocksArray.makeVisible(x, y, z + 1);
+// }
 
 void SDLGraphicsProgram::GetSelection(int mouseX, int mouseY, int clickType) {
     // TODO: Does this fit better in selection buffer class?
@@ -415,7 +415,7 @@ void SDLGraphicsProgram::GetSelection(int mouseX, int mouseY, int clickType) {
         std::cout << "Selected index: " << selectedBlockIndex << std::endl;
         blocksArray.getBlock(x, y, z).isVisible = false;
         blocksArray.getBlock(x, y, z).blockType = Empty;
-        updateSurroundingBlocks(x, y, z);
+        blocksArray.revealSurroundingBlocks(x, y, z);
     }
     // debug face selection
     if (clickType == SDL_BUTTON_RIGHT) {
@@ -449,6 +449,7 @@ void SDLGraphicsProgram::GetSelection(int mouseX, int mouseY, int clickType) {
             std::cout << "Block type is: " << blocksArray.getBlock(x, y, z).blockType << std::endl;
             blocksArray.getBlock(x, y, z).blockType = activeBlock;
             blocksArray.getBlock(x, y, z).isVisible = true;
+            blocksArray.hideSurroundingBlocks(x, y, z);
         }
         else {
             std::cout << "Invalid block" << std::endl;
