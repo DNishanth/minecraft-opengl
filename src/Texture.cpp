@@ -76,7 +76,7 @@ void Texture::LoadTexture(const std::string filepath){
                     GL_RGBA,
                     GL_UNSIGNED_BYTE,
                     data); // Here is the raw pixel data
-    glGenerateMipmap(GL_TEXTURE_2D); // TODO: deal with moire pattern?
+    glGenerateMipmap(GL_TEXTURE_2D);
     // We are done with our texture data so we can unbind.
 	// We are done with our texture data so we can unbind.
 	glBindTexture(GL_TEXTURE_2D, 0);

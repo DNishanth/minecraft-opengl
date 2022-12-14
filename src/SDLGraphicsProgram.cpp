@@ -92,9 +92,6 @@ SDLGraphicsProgram::SDLGraphicsProgram(int w, int h):m_screenWidth(w),m_screenHe
 
 // Proper shutdown of SDL and destroy initialized objects
 SDLGraphicsProgram::~SDLGraphicsProgram() {
-    // Reclaim all of our objects
-    // delete m_object;
-
     //Destroy window
 	SDL_DestroyWindow( m_window );
 	// Point m_window to NULL to ensure it points to nothing.
@@ -121,7 +118,6 @@ bool SDLGraphicsProgram::InitGL() {
 }
 
 
-// TODO: Check block status before initializing
 void SDLGraphicsProgram::InitWorld() {
     for (int x = 0; x < WIDTH; x++) {
         for (int y = 0; y < HEIGHT; y++) {
@@ -242,7 +238,7 @@ void SDLGraphicsProgram::Loop() {
         		quit = true;
 	        }
             if (e.type == SDL_MOUSEMOTION) {
-                int mouseX = e.motion.x; // TODO: move out of loop
+                int mouseX = e.motion.x;
                 int mouseY = e.motion.y;
                 Camera::Instance().MouseLook(mouseX, mouseY);
             }
@@ -250,12 +246,12 @@ void SDLGraphicsProgram::Loop() {
                 int mouseX = e.button.x;
                 int mouseY = e.motion.y;
                 if (e.button.button == SDL_BUTTON_LEFT) {
-                    GetSelection(mouseX, mouseY, SDL_BUTTON_LEFT);
-                    std::cout << "Mouse X: " << mouseX << " Y: " << mouseY << std::endl;
+                    MakeSelection(mouseX, mouseY, SDL_BUTTON_LEFT);
+                    // std::cout << "Mouse X: " << mouseX << " Y: " << mouseY << std::endl;
                 }
                 else if (e.button.button == SDL_BUTTON_RIGHT) {
-                    GetSelection(mouseX, mouseY, SDL_BUTTON_RIGHT);
-                    std::cout << "Mouse X: " << mouseX << " Y: " << mouseY << std::endl;
+                    MakeSelection(mouseX, mouseY, SDL_BUTTON_RIGHT);
+                    // std::cout << "Mouse X: " << mouseX << " Y: " << mouseY << std::endl;
                 }
             }
 			if (e.type == SDL_KEYDOWN) {
@@ -359,115 +355,67 @@ void SDLGraphicsProgram::Loop() {
 }
 
 
-void SDLGraphicsProgram::GetSelection(int mouseX, int mouseY, int clickType) {
-    // TODO: Does this fit better in selection buffer class?
-    // TODO: USE API TRACE TO SHOW FRAME BUFFER
-    // TODO: distance check for selection
-    // TODO: Better design is to have block builder take in shader to update
-    selectionBuffer.Bind();
-    glClearColor(0.0f, 0.0f, 0.0f, 1.f);
-  	glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
+void SDLGraphicsProgram::MakeSelection(int mouseX, int mouseY, int clickType) {
+    // Render blocks in selection framebuffer
+    selectionBuffer.Render(blocksArray, m_screenWidth, m_screenHeight);
 
-    glm::mat4 m_projectionMatrix = glm::perspective(45.0f, (float) m_screenWidth/(float)m_screenHeight, 0.1f, 100.0f);
-    int blockIndex = 1; // Background is index 0
-    for (int x = 0; x < WIDTH; x++) {
-        for (int y = 0; y < HEIGHT; y++) {
-            for (int z = 0; z < DEPTH; z++) {
-                BlockData block = blocksArray.getBlock(x, y, z);
-                if (block.isVisible) {
-                    // Update(block, 1280, 720);
-                    // TODO: do this in blockbuilder pass in shader used
-                    selectionBuffer.m_shader.SetUniformMatrix4fv("model", block.m_transform.GetTransformMatrix());
-                    selectionBuffer.m_shader.SetUniformMatrix4fv("view", &Camera::Instance().GetWorldToViewmatrix()[0][0]);
-                    selectionBuffer.m_shader.SetUniformMatrix4fv("projection", &m_projectionMatrix[0][0]);
-                    for (int i = 0; i <= 30; i += 6) { // TODO: simplify
-                        int r = ((blockIndex + (i/6)) & 0x000000FF) >>  0; // Convert block index to 3 digits from 0-255
-                        int g = ((blockIndex + (i/6)) & 0x0000FF00) >>  8; // http://www.opengl-tutorial.org/miscellaneous/clicking-on-objects/picking-with-an-opengl-hack/
-                        int b = ((blockIndex + (i/6)) & 0x00FF0000) >> 16;
-                        selectionBuffer.m_shader.SetUniform4f("blockColor", r/255.0f, g/255.0f, b/255.0f, 1.0f);
-                        // blockIndex++;
-                        glDrawElements(GL_TRIANGLES,
-                            6,   // The number of indices, not triangles.
-                            GL_UNSIGNED_INT,    // Make sure the data type matches
-                            (void*)(i * sizeof(GLuint)));           // Offset pointer to the data. nullptr
-                                            // because we are currently bound:
-                    }
-
-                    // glDrawElements(GL_TRIANGLES,
-                    //     builder.m_indices.size(),   // The number of indices, not triangles.
-                    //     GL_UNSIGNED_INT,    // Make sure the data type matches
-                    //     nullptr);           // Offset pointer to the data. nullptr
-                    //                         // because we are currently bound:
-                }
-                blockIndex+=6;
-            }
-        }
-    }
-    // TODO: change to center screen
-    // TODO: Make sure background color can't be selected
+    // Read pixel color from framebuffer and convert back to block index
     int selectedBlockIndex = selectionBuffer.ReadPixel(mouseX, m_screenHeight - mouseY - 1) - 1;
     selectionBuffer.Unbind();
     if (selectedBlockIndex == -1) {
-        // std::cout << "Selecting background" << std::endl;
         return;
     }
-    // std::cout << "\nRead pixel index: " << selectedBlockIndex << std::endl;
     int face = selectedBlockIndex % 6; // 0 - 5 face of block
     int blockID = selectedBlockIndex - face; //  block starting index
     selectedBlockIndex = blockID / 6; // x y z conversion
+
+    int z = selectedBlockIndex % DEPTH;
+    int y = (selectedBlockIndex % (DEPTH * HEIGHT)) / DEPTH;
+    int x = selectedBlockIndex / (DEPTH * HEIGHT);
     // std::cout << "Selected index: " << selectedBlockIndex << std::endl;
     // std::cout << "Block ID: " << blockID << std::endl;
     // std::cout << "Face: " << face << std::endl;
-    int z = selectedBlockIndex % DEPTH; // 4
-    int y = (selectedBlockIndex % (DEPTH * HEIGHT)) / DEPTH; // 4
-    int x = selectedBlockIndex / (DEPTH * HEIGHT); // 4 * 32
-    // int z = selectedBlockIndex % 16;
-    // int y = (selectedBlockIndex / 16) % 16;
-    // int x = selectedBlockIndex / (16 * 16);
-    // std::cout << "USING DEFINE: Block X: " << x << " Y: " << y << " Z: " << z << std::endl;
     if (clickType == SDL_BUTTON_LEFT) {
-        // std::cout << "Handling left click" << std::endl;
-        std::cout << "Selected index: " << selectedBlockIndex << std::endl;
+        // std::cout << "Selected index: " << selectedBlockIndex << std::endl;
         blocksArray.getBlock(x, y, z).isVisible = false;
         blocksArray.getBlock(x, y, z).blockType = Empty;
         blocksArray.revealSurroundingBlocks(x, y, z);
     }
     // debug face selection
     if (clickType == SDL_BUTTON_RIGHT) {
-        // std::cout << "Handling right click" << std::endl;
         if (face == 0) {
-            std::cout << "Front" << std::endl;
+            // std::cout << "Front" << std::endl;
             z += 1;
         }
         else if (face == 1) {
-            std::cout << "Back" << std::endl;
+            // std::cout << "Back" << std::endl;
             z -= 1;
         }
         else if (face == 2) {
-            std::cout << "Top" << std::endl;
+            // std::cout << "Top" << std::endl;
             y += 1;
         }
         else if (face == 3) {
-            std::cout << "Bot" << std::endl;
+            // std::cout << "Bot" << std::endl;
             y -= 1;
         }
         else if (face == 4) {
-            std::cout << "Right" << std::endl;
+            // std::cout << "Right" << std::endl;
             x += 1;
         }
         else if (face == 5) {
-            std::cout << "Left" << std::endl;
+            // std::cout << "Left" << std::endl;
             x -= 1;
         }
         if (blocksArray.isValidBlock(x, y, z)) {
-            std::cout << "Placing on Block X: " << x << " Y: " << y << " Z: " << z << std::endl;
-            std::cout << "Block type is: " << blocksArray.getBlock(x, y, z).blockType << std::endl;
+            // std::cout << "Placing on Block X: " << x << " Y: " << y << " Z: " << z << std::endl;
+            // std::cout << "Block type is: " << blocksArray.getBlock(x, y, z).blockType << std::endl;
             blocksArray.getBlock(x, y, z).blockType = activeBlock;
             blocksArray.getBlock(x, y, z).isVisible = true;
             blocksArray.hideSurroundingBlocks(x, y, z);
         }
         else {
-            std::cout << "Invalid block" << std::endl;
+            // std::cout << "Out of bounds block" << std::endl;
         }
     }
 }

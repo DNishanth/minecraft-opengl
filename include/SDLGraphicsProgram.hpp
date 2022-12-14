@@ -41,7 +41,7 @@ public:
     // Loop that runs forever
     void Loop();
     // Get selected block at cursor position
-    void GetSelection(int x, int y, int clickType);
+    void MakeSelection(int x, int y, int clickType);
     // Get Pointer to Window
     SDL_Window* GetSDLWindow();
     // Helper Function to Query OpenGL information.

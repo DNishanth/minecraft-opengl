@@ -104,7 +104,7 @@ void VertexBufferLayout::CreatePositionBufferLayout(unsigned int vcount,unsigned
 
 
 void VertexBufferLayout::CreateTextureBufferLayout(unsigned int vcount, unsigned int tcount, unsigned int icount, float* vdata, float* tdata, unsigned int* idata ){
-        // This layout uses x,y,z, and s,t
+        // This layout uses x,y,z,nx,ny,nz and s,t
         m_stride = 6;
 
         static_assert(sizeof(GLfloat)==sizeof(float),
@@ -117,7 +117,6 @@ void VertexBufferLayout::CreateTextureBufferLayout(unsigned int vcount, unsigned
 
         // Vertex VertexBufferLayout Object (VBO)
         // Create a buffer (note we’ll see this pattern of code often in OpenGL)
-        // TODO: Read this and understand what is going on
         glGenBuffers(1, &m_vertexPositionBuffer); // selecting the buffer is
                                                 // done by binding in OpenGL
                                                 // We tell OpenGL then how we want to

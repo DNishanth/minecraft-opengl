@@ -13,7 +13,7 @@ class SelectionFrameBuffer {
 
         void Create(int width, int height);
 
-        // void Render(BlocksArray& blocksArray);
+        void Render(BlocksArray& blocksArray, int width, int height);
 
         int ReadPixel(int x, int y);
 
@@ -21,7 +21,6 @@ class SelectionFrameBuffer {
 
         void Unbind();
 
-        Shader m_shader; // TODO: public/private
 
     private:
         // Framebuffer ID
@@ -32,6 +31,8 @@ class SelectionFrameBuffer {
 
         // Renderbuffer ID
         GLuint m_rbo;
+
+        Shader m_shader;
 };
 
 #endif
