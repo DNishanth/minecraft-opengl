@@ -309,6 +309,9 @@ void SDLGraphicsProgram::Loop() {
                     case SDLK_c:
                         Camera::Instance().ToggleCollision();
                         break;
+                    case SDLK_l:
+                        builder.ToggleLighting();
+                        break;
                     case SDLK_1:
                         activeBlock = Dirt;
                         break;

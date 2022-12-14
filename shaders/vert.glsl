@@ -38,7 +38,7 @@ void main()
 {
   gl_Position = projection * view * model * vec4(position, 1.0f);
   myNormal = normals;
-  FragPos = vec3(model* vec4(position,1.0f));
+  FragPos = vec3(model * vec4(position, 1.0f));
 
   // Store the texture coordinates which we will output to
   // the next stage in the graphics pipeline.

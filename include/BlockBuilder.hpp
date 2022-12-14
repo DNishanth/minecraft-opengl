@@ -48,6 +48,7 @@ public:
     Transform& GetTransform();
     // BlockBuilder indices // TODO: public/private
     std::vector<GLuint> m_indices;
+    void ToggleLighting();
 private:
     void generateBlockTexture(BlockType blockType, int top, int side, int bottom);
     FaceTexture generateFaceTexture(int faceAtlasIndex);
@@ -65,6 +66,7 @@ private:
     glm::mat4 m_projectionMatrix;
     // std::array<std::vector<GLfloat>, NUM_BLOCK_TYPES> blockTextures;
     std::vector<GLfloat> m_blockTextures;
+    int lightingEnabled;
 };
 
 

@@ -15,7 +15,7 @@ in vec2 v_texCoord;
 uniform sampler2D u_Texture;
 
 // Our light source data structure
-struct PointLight{
+struct Light {
     vec3 lightColor;
     vec3 lightPos;
     vec3 lightDir;
@@ -34,11 +34,12 @@ struct PointLight{
 
 in vec3 myNormal;
 in vec3 FragPos;
+uniform int lightingEnabled;
 
-#define NUM_POINT_LIGHTS 1
-uniform PointLight pointLights[NUM_POINT_LIGHTS];
+#define NUM_LIGHTS 1
+uniform Light lights[NUM_LIGHTS];
 
-vec3 calcPointLighting(PointLight light, vec3 norm) {
+vec3 calcLighting(Light light, vec3 norm) {
     // (1) Compute ambient light
     vec3 ambient = light.ambientIntensity * light.lightColor;
 
@@ -65,19 +66,23 @@ vec3 calcPointLighting(PointLight light, vec3 norm) {
 
 void main()
 {
-    // // Compute the normal direction
-    // vec3 norm = normalize(myNormal);
+    if (lightingEnabled == 1) {
+        // Compute the normal direction
+        vec3 norm = normalize(myNormal);
 
-    // // Store our final texture color
-    // vec3 diffuseColor = texture(u_Texture, v_texCoord).rgb;
+        // Store our final texture color
+        vec3 diffuseColor = texture(u_Texture, v_texCoord).rgb;
 
-    // vec3 totalLighting = vec3(0, 0, 0);
-    // for (int i = 0; i < NUM_POINT_LIGHTS; i++) {
-    //     totalLighting += calcPointLighting(pointLights[i], norm);
-    // }
+        vec3 totalLighting = vec3(0, 0, 0);
+        for (int i = 0; i < NUM_LIGHTS; i++) {
+            totalLighting += calcLighting(lights[i], norm);
+        }
 
-    // color = vec4(diffuseColor * totalLighting, 1.0);
+        color = vec4(diffuseColor * totalLighting, 1.0);
+    }
+    else {
+        color = texture(u_Texture, v_texCoord);
+    }
 
-    color = texture(u_Texture, v_texCoord);
 }
 // ==================================================================

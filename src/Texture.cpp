@@ -30,9 +30,9 @@ Texture::~Texture(){
 	// Delete our pixel data
 	// Note: We could actually do this sooner
 	// in our rendering process.
-	if(m_pixelData!=NULL){
-		delete[] m_pixelData;
-	}
+	// if(m_pixelData!=NULL){
+	// 	delete[] m_pixelData;
+	// }
 }
 
 void Texture::LoadTexture(const std::string filepath){

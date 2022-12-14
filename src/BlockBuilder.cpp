@@ -13,6 +13,7 @@ BlockBuilder::BlockBuilder() {
     generateBlockTexture(LightBlueWool, 33, 33, 33);
     generateBlockTexture(OrangeWool, 34, 34, 34);
     generateBlockTexture(Snow, 178, 180, 180);
+	lightingEnabled = 0;
 }
 
 BlockBuilder::~BlockBuilder() {}
@@ -146,28 +147,19 @@ void BlockBuilder::Update(BlockData& blockData, unsigned int screenWidth, unsign
 	// Note I cannot see anything closer than 0.1f units from the screen.
 	m_projectionMatrix = glm::perspective(45.0f, (float)screenWidth/(float)screenHeight, 0.1f, 100.0f);
 	// Set the uniforms in our current shader
+	m_shader.SetUniformMatrix1i("lightingEnabled", lightingEnabled);
 	m_shader.SetUniformMatrix4fv("model", blockData.m_transform.GetTransformMatrix());
     m_shader.SetUniformMatrix4fv("view", &Camera::Instance().GetWorldToViewmatrix()[0][0]);
 	m_shader.SetUniformMatrix4fv("projection", &m_projectionMatrix[0][0]);
 
-    // m_shader.SetUniform3f("pointLights[0].lightColor",1.0f,1.0f,1.0f);
-    // m_shader.SetUniform3f("pointLights[0].lightPos",
-    //     Camera::Instance().GetEyeXPosition() + Camera::Instance().GetViewXDirection(),
-    //     Camera::Instance().GetEyeYPosition() + Camera::Instance().GetViewYDirection(),
-    //     Camera::Instance().GetEyeZPosition() + Camera::Instance().GetViewZDirection());
-    // m_shader.SetUniform1f("pointLights[0].ambientIntensity", 0.5f);
-    // m_shader.SetUniform1f("pointLights[0].specularStrength", 0.5f);
-    // m_shader.SetUniform1f("pointLights[0].constant", 1.0f);
-    // m_shader.SetUniform1f("pointLights[0].linear", 0.09f);
-    // m_shader.SetUniform1f("pointLights[0].quadratic", 0.032f);
-
-    m_shader.SetUniform3f("pointLights[0].lightColor",1.0f,1.0f,1.0f);
-    m_shader.SetUniform3f("pointLights[0].lightDir", -0.5f, -1.0f, -0.5f);
-    m_shader.SetUniform1f("pointLights[0].ambientIntensity", 0.3f);
-    m_shader.SetUniform1f("pointLights[0].specularStrength", 0.1f);
-    m_shader.SetUniform1f("pointLights[0].constant", 1.0f);
-    m_shader.SetUniform1f("pointLights[0].linear", 0.022f);
-    m_shader.SetUniform1f("pointLights[0].quadratic", 0.0019f);
+	// TODO: check if not needed every update call
+    m_shader.SetUniform3f("lights[0].lightColor", 1.0f,1.0f,1.0f);
+    m_shader.SetUniform3f("lights[0].lightDir", -0.5f, -1.0f, -0.5f);
+    m_shader.SetUniform1f("lights[0].ambientIntensity", 0.3f);
+    m_shader.SetUniform1f("lights[0].specularStrength", 0.1f);
+    m_shader.SetUniform1f("lights[0].constant", 1.0f);
+    m_shader.SetUniform1f("lights[0].linear", 0.022f);
+    m_shader.SetUniform1f("lights[0].quadratic", 0.0019f);
 }
 
 void BlockBuilder::Render(BlocksArray& blocksArray) {
@@ -203,4 +195,8 @@ void BlockBuilder::Render(BlocksArray& blocksArray) {
 // which can then be modified
 Transform& BlockBuilder::GetTransform() {
     return m_transform;
+}
+
+void BlockBuilder::ToggleLighting() {
+	lightingEnabled = !lightingEnabled;
 }
