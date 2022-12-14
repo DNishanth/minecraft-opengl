@@ -49,6 +49,7 @@ public:
     // BlockBuilder indices // TODO: public/private
     std::vector<GLuint> m_indices;
     void ToggleLighting();
+    void ReloadShaders();
 private:
     void generateBlockTexture(BlockType blockType, int top, int side, int bottom);
     FaceTexture generateFaceTexture(int faceAtlasIndex);

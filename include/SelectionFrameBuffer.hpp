@@ -13,6 +13,8 @@ class SelectionFrameBuffer {
 
         void Create(int width, int height);
 
+        // void Render(BlocksArray& blocksArray);
+
         int ReadPixel(int x, int y);
 
         void Bind();

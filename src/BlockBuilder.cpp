@@ -52,7 +52,7 @@ void BlockBuilder::generateBlockTexture(BlockType blockType, int topAtlasIndex, 
     sideFace.addToBuffer(m_blockTextures);     // Left face
 }
 
-// Initialization of BlockBuilder as a 'quad'
+// Initialization of BlockBuilder
 //
 // This could be called in the constructor or
 // otherwise 'explicitly' called this
@@ -147,19 +147,9 @@ void BlockBuilder::Update(BlockData& blockData, unsigned int screenWidth, unsign
 	// Note I cannot see anything closer than 0.1f units from the screen.
 	m_projectionMatrix = glm::perspective(45.0f, (float)screenWidth/(float)screenHeight, 0.1f, 100.0f);
 	// Set the uniforms in our current shader
-	m_shader.SetUniformMatrix1i("lightingEnabled", lightingEnabled);
 	m_shader.SetUniformMatrix4fv("model", blockData.m_transform.GetTransformMatrix());
     m_shader.SetUniformMatrix4fv("view", &Camera::Instance().GetWorldToViewmatrix()[0][0]);
 	m_shader.SetUniformMatrix4fv("projection", &m_projectionMatrix[0][0]);
-
-	// TODO: check if not needed every update call
-    m_shader.SetUniform3f("lights[0].lightColor", 1.0f,1.0f,1.0f);
-    m_shader.SetUniform3f("lights[0].lightDir", -0.5f, -1.0f, -0.5f);
-    m_shader.SetUniform1f("lights[0].ambientIntensity", 0.3f);
-    m_shader.SetUniform1f("lights[0].specularStrength", 0.1f);
-    m_shader.SetUniform1f("lights[0].constant", 1.0f);
-    m_shader.SetUniform1f("lights[0].linear", 0.022f);
-    m_shader.SetUniform1f("lights[0].quadratic", 0.0019f);
 }
 
 void BlockBuilder::Render(BlocksArray& blocksArray) {
@@ -169,8 +159,11 @@ void BlockBuilder::Render(BlocksArray& blocksArray) {
 	m_texture.Bind();
 	// Select this BlockBuilders shader to render
 	m_shader.Bind();
-	// TODO: Choose which vertices/indices to use in here or update based on type of block given
-	// TODO: Only set rendering block if it changes
+	m_shader.SetUniformMatrix1i("lightingEnabled", lightingEnabled);
+    m_shader.SetUniform3f("lights[0].lightColor", 1.0f, 1.0f, 1.0f);
+    m_shader.SetUniform3f("lights[0].lightDir", -0.5f, -1.0f, -0.5f);
+    m_shader.SetUniform1f("lights[0].ambientIntensity", 0.4f);
+    m_shader.SetUniform1f("lights[0].specularStrength", 0.3f);
     // Render data
     for (int x = 0; x < WIDTH; x++) {
         for (int y = 0; y < HEIGHT; y++) {
@@ -178,7 +171,6 @@ void BlockBuilder::Render(BlocksArray& blocksArray) {
                 BlockData block = blocksArray.getBlock(x, y, z);
                 if (block.isVisible) {
                     glVertexAttribPointer(2, 2, GL_FLOAT, GL_TRUE, sizeof(float)*2, (GLvoid*)(48 * block.blockType * sizeof(GLfloat)));
-                    // glVertexAttribPointer(1, 2, GL_FLOAT, GL_TRUE, sizeof(float)*2, (GLvoid*)(48 * block.blockType * sizeof(GLfloat)));
                     Update(block, 1280, 720);
                     glDrawElements(GL_TRIANGLES,
                         m_indices.size(),   // The number of indices, not triangles.
@@ -199,4 +191,10 @@ Transform& BlockBuilder::GetTransform() {
 
 void BlockBuilder::ToggleLighting() {
 	lightingEnabled = !lightingEnabled;
+}
+
+void BlockBuilder::ReloadShaders() {
+	std::string vertexShader = m_shader.LoadShader("./shaders/vert.glsl");
+	std::string fragmentShader = m_shader.LoadShader("./shaders/frag.glsl");
+	m_shader.CreateShader(vertexShader, fragmentShader);
 }

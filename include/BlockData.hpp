@@ -36,7 +36,6 @@ struct BlocksArray {
     }
 
     ~BlocksArray() {
-        std::cout << "Freeing BlockArray" << std::endl;
         delete[] blocks;
     }
 

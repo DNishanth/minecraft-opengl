@@ -26,10 +26,6 @@ struct Light {
     float constant;
     float linear;
     float quadratic;
-
-    vec3 ambient;
-    vec3 diffuse;
-    vec3 specular;
 };
 
 in vec3 myNormal;
@@ -44,21 +40,40 @@ vec3 calcLighting(Light light, vec3 norm) {
     vec3 ambient = light.ambientIntensity * light.lightColor;
 
     // (2) Compute diffuse light
-    // From our lights position and the fragment, we can get
-    // a vector indicating direction
-    // Note it is always good to 'normalize' values.
     vec3 lightDir = normalize(-light.lightDir);
-    // vec3 lightDir = normalize(light.lightPos - FragPos);
     float diffImpact = max(dot(norm, lightDir), 0.0);
-
-    vec3 diffuseLight = diffImpact * light.lightColor; // TODO: normalize?
+    vec3 diffuseLight = diffImpact * light.lightColor;
 
     // (3) Compute Specular lighting
     vec3 viewPos = vec3(0.0, 0.0, 0.0);
     vec3 viewDir = normalize(viewPos - FragPos);
     vec3 reflectDir = reflect(-lightDir, norm);
     float spec = pow(max(dot(viewDir, reflectDir), 0.0), 32);
+    vec3 specular = light.specularStrength * spec * light.lightColor;
 
+    return diffuseLight + ambient + specular;
+}
+
+vec3 calcLightingDebug(vec3 norm) {
+    Light light;
+    light.lightColor = vec3(1.0, 1.0, 1.0);
+    light.lightDir = vec3(-0.5, -1.0, -0.5);
+    light.ambientIntensity = 0.4;
+    light.specularStrength = 0.3;
+
+    // (1) Compute ambient light
+    vec3 ambient = light.ambientIntensity * light.lightColor;
+
+    // (2) Compute diffuse light
+    vec3 lightDir = normalize(-light.lightDir);
+    float diffImpact = max(dot(norm, lightDir), 0.0);
+    vec3 diffuseLight = diffImpact * light.lightColor;
+
+    // (3) Compute Specular lighting
+    vec3 viewPos = vec3(0.0, 0.0, 0.0);
+    vec3 viewDir = normalize(viewPos - FragPos);
+    vec3 reflectDir = reflect(-lightDir, norm);
+    float spec = pow(max(dot(viewDir, reflectDir), 0.0), 32);
     vec3 specular = light.specularStrength * spec * light.lightColor;
 
     return diffuseLight + ambient + specular;
@@ -75,6 +90,7 @@ void main()
 
         vec3 totalLighting = vec3(0, 0, 0);
         for (int i = 0; i < NUM_LIGHTS; i++) {
+            // totalLighting += calcLightingDebug(norm);
             totalLighting += calcLighting(lights[i], norm);
         }
 
