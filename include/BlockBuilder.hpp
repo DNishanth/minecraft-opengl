@@ -3,9 +3,7 @@
 
 #include <glad/glad.h>
 
-// #include <array>
 #include <string>
-#include <unordered_map>
 #include <vector>
 
 #include "glm/vec3.hpp"
@@ -53,7 +51,7 @@ private:
     FaceTexture generateFaceTexture(int faceAtlasIndex);
     // BlockBuilder vertices
     std::vector<GLfloat> m_vertices;
-    // BlockBuilder indices 
+    // BlockBuilder indices
     std::vector<GLuint> m_indices;
     // For now we have one shader per BlockBuilder.
     Shader m_shader;

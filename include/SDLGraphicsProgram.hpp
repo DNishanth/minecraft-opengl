@@ -19,6 +19,7 @@
 #include <glad/glad.h>
 #include "BlockBuilder.hpp"
 #include "BlockData.hpp"
+#include "Crosshair.hpp"
 #include "SelectionFrameBuffer.hpp"
 
 // Purpose:
@@ -58,6 +59,7 @@ private:
 
     SelectionFrameBuffer selectionBuffer;
     BlockBuilder builder;
+    Crosshair crosshair;
     BlocksArray blocksArray;
     BlockType activeBlock;
 

@@ -83,6 +83,7 @@ SDLGraphicsProgram::SDLGraphicsProgram(int w, int h):m_screenWidth(w),m_screenHe
 	GetOpenGLVersionInfo();
 
     builder.MakeTexturedQuad("");
+    // crosshair.MakeTexturedQuad(m_screenWidth, m_screenHeight);
     InitWorld();
     activeBlock = Brick;
 
@@ -178,29 +179,14 @@ void SDLGraphicsProgram::InitWorld() {
 
 
 // Update OpenGL
-void SDLGraphicsProgram::Update() {
-
-    // static float rot = 0;
-    // rot+=0.1;
-    // if(rot>360){rot=0;}
-    // for (int x = 0; x < 16; x++) {
-    //     for (int y = 0; y < 16; y++) {
-    //         for (int z = 0; z < 16; z++) {
-    //             if (blocks[x][y][z].isVisible) {
-    //                 blocks[x][y][z].Translate(x,y,z);
-    //             }
-    //         }
-    //     }
-    // }
-}
+void SDLGraphicsProgram::Update() {}
 
 
 
 // Render
 // The render function gets called once per loop
 void SDLGraphicsProgram::Render() {
-    // Initialize clear color
-    // This is the background of the screen.
+    // Set background to sky color
     glViewport(0, 0, m_screenWidth, m_screenHeight);
     glClearColor(135.0f/255.0f, 206.0f/255.0f, 235.0f/255.0f, 1.f);
     // Clear color buffer and Depth Buffer
@@ -209,10 +195,8 @@ void SDLGraphicsProgram::Render() {
     // and we have to do this every frame!
   	glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
 
-    // Render blocks
-    builder.Render(blocksArray);
-
-    // SDL_Delay(50);
+    // crosshair.Render(); // Render crosshair
+    builder.Render(blocksArray); // Render blocks
 }
 
 
@@ -240,6 +224,9 @@ void SDLGraphicsProgram::Loop() {
             if (e.type == SDL_MOUSEMOTION) {
                 int mouseX = e.motion.x;
                 int mouseY = e.motion.y;
+                // std::cout << "Mouse X: " << mouseX << " Y: " << mouseY << std::endl;
+                // std::cout << "Mouse X: " << e.motion.xrel << " Y: " << e.motion.yrel << std::endl;
+                // Camera::Instance().MouseLook(e.motion.xrel, e.motion.yrel);
                 Camera::Instance().MouseLook(mouseX, mouseY);
             }
             if (e.type == SDL_MOUSEBUTTONDOWN) {
