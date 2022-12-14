@@ -2,8 +2,6 @@
 #version 330 core
 
 layout(location=0)in vec3 position;
-layout(location=1) in vec2 texCoord; // TODO: Try removing since textures aren't used
-
 
 uniform mat4 model;
 uniform mat4 view;

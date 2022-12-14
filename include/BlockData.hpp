@@ -5,7 +5,7 @@
 #include <iostream>
 
 #define WIDTH 100
-#define HEIGHT 100
+#define HEIGHT 256
 #define DEPTH 100
 
 enum BlockType {
@@ -18,6 +18,7 @@ enum BlockType {
     Mossystone,
     LightBlueWool,
     OrangeWool,
+    Snow,
     Empty
 };
 

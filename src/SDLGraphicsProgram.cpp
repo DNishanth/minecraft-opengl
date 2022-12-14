@@ -138,14 +138,23 @@ void SDLGraphicsProgram::InitWorld() {
     int height = 0;
     for (int x = 0; x < WIDTH; x++) {
         for (int z = 0; z < DEPTH; z++) {
-            height = heightMap.GetPixelR(x, z) / 1;
+            // height = heightMap.GetPixelR(x, z);
+            height = ((float) heightMap.GetPixelR(x, z) / 255.0f) * HEIGHT;
             if (height < HEIGHT) {
                 blocksArray.getBlock(x, height, z).isVisible = true;
-                blocksArray.getBlock(x, height, z).blockType = Grass;
+                if (height > 36) {
+                    blocksArray.getBlock(x, height, z).blockType = Snow;
+                }
+                else {
+                    blocksArray.getBlock(x, height, z).blockType = Grass;
+                }
                 for (int y = 0; y < height; y++) {
                     blocksArray.getBlock(x, y, z).isVisible = true;
                     blocksArray.getBlock(x, y, z).blockType = Dirt;
                 }
+            }
+            else {
+                std::cout << "Too high" << std::endl;
             }
         }
     }

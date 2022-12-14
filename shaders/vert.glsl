@@ -10,8 +10,8 @@ layout(location=0)in vec3 position; // We explicitly state which is the vertex
 layout(location=1) in vec2 texCoord;
 
 // If we have texture coordinates we will need
-// to pass these into the fragment shader. 
-// We create a 'vec2' and the 'out' qualifier 
+// to pass these into the fragment shader.
+// We create a 'vec2' and the 'out' qualifier
 // implies that we will read this variable 'in'
 // a later stage of the graphics
 // pipeline (i.e. our fragment shader)
@@ -35,7 +35,7 @@ void main()
 {
   gl_Position = projection * view * model * vec4(position, 1.0f);
 
-  // Store the texture coordinaets which we will output to
+  // Store the texture coordinates which we will output to
   // the next stage in the graphics pipeline.
   v_texCoord = texCoord;
 }

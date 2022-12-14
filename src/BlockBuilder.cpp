@@ -12,6 +12,7 @@ BlockBuilder::BlockBuilder() {
     generateBlockTexture(Mossystone, 212, 212, 212);
     generateBlockTexture(LightBlueWool, 33, 33, 33);
     generateBlockTexture(OrangeWool, 34, 34, 34);
+    generateBlockTexture(Snow, 178, 180, 180);
 }
 
 BlockBuilder::~BlockBuilder() {}
