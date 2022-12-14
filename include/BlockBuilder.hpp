@@ -17,19 +17,6 @@
 #include "Transform.hpp"
 #include "BlockData.hpp"
 
-enum BlockType {
-    Dirt,
-    Grass,
-    Plank,
-    Brick,
-    Cobblestone,
-    Sandstone,
-    Mossystone,
-    LightBlueWool,
-    OrangeWool,
-};
-#define NUM_BLOCK_TYPES 3
-
 struct FaceTexture {
     float leftU;
     float rightU;

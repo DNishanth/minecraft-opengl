@@ -4,9 +4,23 @@
 #include "Transform.hpp"
 #include <iostream>
 
-#define WIDTH 100
-#define HEIGHT 10
-#define DEPTH 100
+#define WIDTH 10
+#define HEIGHT 100
+#define DEPTH 10
+
+enum BlockType {
+    Dirt,
+    Grass,
+    Plank,
+    Brick,
+    Cobblestone,
+    Sandstone,
+    Mossystone,
+    LightBlueWool,
+    OrangeWool,
+    Empty
+};
+#define NUM_BLOCK_TYPES 3
 
 struct BlockData {
     bool isVisible;
@@ -35,7 +49,7 @@ struct BlocksArray {
     }
 
     bool isCoveredBlock(int x, int y, int z) {
-        return isValidBlock(x, y, z) && getBlock(x, y, z).isVisible;
+        return isValidBlock(x, y, z) && getBlock(x, y, z).blockType != Empty;
     }
 };
 

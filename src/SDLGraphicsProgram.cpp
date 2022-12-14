@@ -126,7 +126,7 @@ void SDLGraphicsProgram::InitWorld() {
     for (int x = 0; x < WIDTH; x++) {
         for (int y = 0; y < HEIGHT; y++) {
             for (int z = 0; z < DEPTH; z++) {
-                blocksArray.getBlock(x, y, z).isVisible = false;
+                blocksArray.getBlock(x, y, z).isVisible = true;
                 // blocksArray.getBlock(x, y, z).isBorder = true;
                 blocksArray.getBlock(x, y, z).blockType = Grass;
                 blocksArray.getBlock(x, y, z).m_transform.Translate(x, y, z);
@@ -134,14 +134,30 @@ void SDLGraphicsProgram::InitWorld() {
         }
     }
 
-    Image heightMap("terrain_height.ppm");
-    heightMap.LoadPPM(true);
-    int height = 0;
+    // Image heightMap("terrain_height.ppm");
+    // heightMap.LoadPPM(true);
+    // int height = 0;
+    // for (int x = 0; x < WIDTH; x++) {
+    //     for (int z = 0; z < DEPTH; z++) {
+    //         height = heightMap.GetPixelR(x, z) / 5;
+    //         if (height < HEIGHT) {
+    //             blocksArray.getBlock(x, height, z).isVisible = true;
+    //         }
+    //     }
+    // }
+
     for (int x = 0; x < WIDTH; x++) {
-        for (int z = 0; z < DEPTH; z++) {
-            height = heightMap.GetPixelR(x, z) / 5;
-            if (height < HEIGHT) {
-                blocksArray.getBlock(x, height, z).isVisible = true;
+        for (int y = 0; y < HEIGHT; y++) {
+            for (int z = 0; z < DEPTH; z++) {
+                BlockData& currBlock = blocksArray.getBlock(x, y, z);
+                if (blocksArray.isCoveredBlock(x - 1, y, z) && blocksArray.isCoveredBlock(x + 1, y, z) &&
+                    blocksArray.isCoveredBlock(x, y - 1, z) && blocksArray.isCoveredBlock(x, y + 1, z) &&
+                    blocksArray.isCoveredBlock(x, y, z - 1) && blocksArray.isCoveredBlock(x, y, z + 1)) {
+                    currBlock.isVisible = false;
+                    // currBlock.blockType = Mossystone;
+                    std::cout << "hidden block" << std::endl;
+                    std::cout << "x: " << x << " y: " << y << " z: " << z << std::endl;
+                }
             }
         }
     }
@@ -183,7 +199,7 @@ void SDLGraphicsProgram::Render() {
     // Render blocks
     builder.Render(blocksArray);
 
-    SDL_Delay(50);
+    // SDL_Delay(50);
 }
 
 
