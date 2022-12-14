@@ -228,7 +228,7 @@ void SDLGraphicsProgram::Loop() {
 			if (e.type == SDL_KEYDOWN) {
 				switch (e.key.keysym.sym) {
 					case SDLK_q:
-						// quit = true;
+						quit = true;
 						break;
 					case SDLK_i:
 						if (showWireframe) {

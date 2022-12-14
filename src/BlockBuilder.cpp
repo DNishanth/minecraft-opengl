@@ -5,11 +5,11 @@
 BlockBuilder::BlockBuilder() {
     generateBlockTexture(Dirt, 242, 242, 242);
     generateBlockTexture(Grass, 240, 243, 242);
-    generateBlockTexture(Plank, 55, 55, 55);
+    generateBlockTexture(Plank, 244, 244, 244);
     generateBlockTexture(Brick, 247, 247, 247);
     generateBlockTexture(Cobblestone, 224, 224, 224);
     generateBlockTexture(Sandstone, 32, 32, 32);
-    generateBlockTexture(Mossystone, 148, 148, 148);
+    generateBlockTexture(Mossystone, 212, 212, 212);
     generateBlockTexture(LightBlueWool, 33, 33, 33);
     generateBlockTexture(OrangeWool, 34, 34, 34);
 }
@@ -22,21 +22,19 @@ FaceTexture BlockBuilder::generateFaceTexture(int faceAtlasIndex) {
 	int rowIdx = faceAtlasIndex / numCols;
 	int colIdx = faceAtlasIndex % numCols;
 
-    // TODO: Inset to get rid of white lines, is this the best way?
-    // TODO: Swap top and bottom?
 	// UV 0, 0 is top left of atlas
-    float leftU = (float) colIdx / numCols; // + .001f;
-	float rightU = (colIdx + 1.0f) / numCols; // - .001f;
-	float topV = (float) (numRows - rowIdx) / numRows; // - .001f;
-	float bottomV = (numRows - rowIdx - 1.0f) / numRows; // + .001f;
+    float leftU = (float) colIdx / numCols + .001f;
+	float rightU = (colIdx + 1.0f) / numCols - .001f;
+	float topV = (float) (numRows - rowIdx) / numRows - .001f;
+	float bottomV = (numRows - rowIdx - 1.0f) / numRows + .001f;
 
-    std::cout << "Face Atlas Idx: " << faceAtlasIndex << std::endl;
-    std::cout << "Row idx: " << rowIdx << std::endl;
-	std::cout << "Col idx: " << colIdx << std::endl;
-    std::cout << "Left U: " << leftU << std::endl;
-	std::cout << "Right U: " << rightU << std::endl;
-	std::cout << "Top V: " << topV << std::endl;
-	std::cout << "Bottom V: " << bottomV << std::endl;
+    // std::cout << "Face Atlas Idx: " << faceAtlasIndex << std::endl;
+    // std::cout << "Row idx: " << rowIdx << std::endl;
+	// std::cout << "Col idx: " << colIdx << std::endl;
+    // std::cout << "Left U: " << leftU << std::endl;
+	// std::cout << "Right U: " << rightU << std::endl;
+	// std::cout << "Top V: " << topV << std::endl;
+	// std::cout << "Bottom V: " << bottomV << std::endl;
     return (FaceTexture) {leftU, rightU, topV, bottomV};
 }
 
@@ -60,15 +58,16 @@ void BlockBuilder::generateBlockTexture(BlockType blockType, int topAtlasIndex, 
 void BlockBuilder::MakeTexturedQuad(std::string fileName) {
 	m_vertices = {
 		// Front face
-		-0.5f, -0.5f,  0.5f,
-		0.5f, -0.5f,  0.5f,
 		0.5f,  0.5f,  0.5f,
 		-0.5f,  0.5f,  0.5f,
+		-0.5f, -0.5f,  0.5f,
+		0.5f, -0.5f,  0.5f,
+
 		// Back face
-		-0.5f, -0.5f, -0.5f,
 		-0.5f,  0.5f, -0.5f,
 		0.5f,  0.5f, -0.5f,
 		0.5f, -0.5f, -0.5f,
+		-0.5f, -0.5f, -0.5f,
 
 		// Top face
 		-0.5f,  0.5f, -0.5f,
@@ -83,16 +82,16 @@ void BlockBuilder::MakeTexturedQuad(std::string fileName) {
 		-0.5f, -0.5f,  0.5f,
 
 		// Right face
-		0.5f, -0.5f, -0.5f,
 		0.5f,  0.5f, -0.5f,
 		0.5f,  0.5f,  0.5f,
 		0.5f, -0.5f,  0.5f,
+		0.5f, -0.5f, -0.5f,
 
 		// Left face
+		-0.5f,  0.5f, 0.5f,
+		-0.5f,  0.5f,  -0.5f,
 		-0.5f, -0.5f, -0.5f,
-		-0.5f, -0.5f,  0.5f,
-		-0.5f,  0.5f,  0.5f,
-		-0.5f,  0.5f, -0.5f
+		-0.5f, -0.5f, 0.5f,
     };
 
 	m_indices = {

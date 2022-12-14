@@ -52,7 +52,8 @@ void Texture::LoadTexture(const std::string filepath){
 	// our textures.
 	// There are four parameters that must be set.
 	// GL_TEXTURE_MIN_FILTER - How texture filters (linearly, etc.)
-	// glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST_MIPMAP_LINEAR); // best mipmap option tested
+	// glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR; // best mipmap option tested
+	// glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 	// Wrap mode describes what to do if we go outside the boundaries of
@@ -61,21 +62,21 @@ void Texture::LoadTexture(const std::string filepath){
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 	// At this point, we are now ready to load and send some data to OpenGL.
     int width, height, nrChannels;
-    unsigned char *data = stbi_load("texture_atlas.png", &width, &height, &nrChannels, 0);
+    unsigned char *data = stbi_load("texture_atlas_original.png", &width, &height, &nrChannels, 0);
     if (!data) {
-        std::cout << "Texture load failed" << std::endl;
+        std::cout << "Texture load failed: " << stbi_failure_reason() << std::endl;
         exit(1);
     }
     glTexImage2D(GL_TEXTURE_2D,
                         0,
-                    GL_RGBA,
+                    GL_RGBA ,
                     width,
                     height,
                         0,
                     GL_RGBA,
                     GL_UNSIGNED_BYTE,
                     data); // Here is the raw pixel data
-    // glGenerateMipmap(GL_TEXTURE_2D); // TODO: deal with moire pattern?
+    glGenerateMipmap(GL_TEXTURE_2D); // TODO: deal with moire pattern?
     // We are done with our texture data so we can unbind.
 	// We are done with our texture data so we can unbind.
 	glBindTexture(GL_TEXTURE_2D, 0);
