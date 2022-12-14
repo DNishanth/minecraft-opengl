@@ -140,6 +140,7 @@ void SDLGraphicsProgram::InitWorld() {
         for (int z = 0; z < DEPTH; z++) {
             // height = heightMap.GetPixelR(x, z);
             height = ((float) heightMap.GetPixelR(x, z) / 255.0f) * HEIGHT;
+            // height = heightMap.GetPixelR(x, z) / 3;
             if (height < HEIGHT) {
                 blocksArray.getBlock(x, height, z).isVisible = true;
                 if (height > 36) {

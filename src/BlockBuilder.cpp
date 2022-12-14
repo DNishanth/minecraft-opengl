@@ -59,40 +59,40 @@ void BlockBuilder::generateBlockTexture(BlockType blockType, int topAtlasIndex, 
 void BlockBuilder::MakeTexturedQuad(std::string fileName) {
 	m_vertices = {
 		// Front face
-		0.5f,  0.5f,  0.5f,
-		-0.5f,  0.5f,  0.5f,
-		-0.5f, -0.5f,  0.5f,
-		0.5f, -0.5f,  0.5f,
+		0.5f,  0.5f,  0.5f, 0.0f, 0.0f, 1.0f,
+		-0.5f,  0.5f,  0.5f, 0.0f, 0.0f, 1.0f,
+		-0.5f, -0.5f,  0.5f, 0.0f, 0.0f, 1.0f,
+		0.5f, -0.5f,  0.5f, 0.0f, 0.0f, 1.0f,
 
 		// Back face
-		-0.5f,  0.5f, -0.5f,
-		0.5f,  0.5f, -0.5f,
-		0.5f, -0.5f, -0.5f,
-		-0.5f, -0.5f, -0.5f,
+		-0.5f,  0.5f, -0.5f, 0.0f, 0.0f, -1.0f,
+		0.5f,  0.5f, -0.5f, 0.0f, 0.0f, -1.0f,
+		0.5f, -0.5f, -0.5f, 0.0f, 0.0f, -1.0f,
+		-0.5f, -0.5f, -0.5f, 0.0f, 0.0f, -1.0f,
 
 		// Top face
-		-0.5f,  0.5f, -0.5f,
-		-0.5f,  0.5f,  0.5f,
-		0.5f,  0.5f,  0.5f,
-		0.5f,  0.5f, -0.5f,
+		-0.5f,  0.5f, -0.5f, 0.0f, 1.0f, 0.0f,
+		-0.5f,  0.5f,  0.5f, 0.0f, 1.0f, 0.0f,
+		0.5f,  0.5f,  0.5f, 0.0f, 1.0f, 0.0f,
+		0.5f,  0.5f, -0.5f, 0.0f, 1.0f, 0.0f,
 
 		// Bottom face
-		-0.5f, -0.5f, -0.5f,
-		0.5f, -0.5f, -0.5f,
-		0.5f, -0.5f,  0.5f,
-		-0.5f, -0.5f,  0.5f,
+		-0.5f, -0.5f, -0.5f, 0.0f, -1.0f, 0.0f,
+		0.5f, -0.5f, -0.5f, 0.0f, -1.0f, 0.0f,
+		0.5f, -0.5f,  0.5f, 0.0f, -1.0f, 0.0f,
+		-0.5f, -0.5f,  0.5f, 0.0f, -1.0f, 0.0f,
 
 		// Right face
-		0.5f,  0.5f, -0.5f,
-		0.5f,  0.5f,  0.5f,
-		0.5f, -0.5f,  0.5f,
-		0.5f, -0.5f, -0.5f,
+		0.5f,  0.5f, -0.5f, 1.0f, 0.0f, 0.0f,
+		0.5f,  0.5f,  0.5f, 1.0f, 0.0f, 0.0f,
+		0.5f, -0.5f,  0.5f, 1.0f, 0.0f, 0.0f,
+		0.5f, -0.5f, -0.5f, 1.0f, 0.0f, 0.0f,
 
 		// Left face
-		-0.5f,  0.5f, 0.5f,
-		-0.5f,  0.5f,  -0.5f,
-		-0.5f, -0.5f, -0.5f,
-		-0.5f, -0.5f, 0.5f,
+		-0.5f,  0.5f, 0.5f, -1.0f, 0.0f, 0.0f,
+		-0.5f,  0.5f,  -0.5f, -1.0f, 0.0f, 0.0f,
+		-0.5f, -0.5f, -0.5f, -1.0f, 0.0f, 0.0f,
+		-0.5f, -0.5f, 0.5f, -1.0f, 0.0f, 0.0f
     };
 
 	m_indices = {
@@ -149,6 +149,25 @@ void BlockBuilder::Update(BlockData& blockData, unsigned int screenWidth, unsign
 	m_shader.SetUniformMatrix4fv("model", blockData.m_transform.GetTransformMatrix());
     m_shader.SetUniformMatrix4fv("view", &Camera::Instance().GetWorldToViewmatrix()[0][0]);
 	m_shader.SetUniformMatrix4fv("projection", &m_projectionMatrix[0][0]);
+
+    // m_shader.SetUniform3f("pointLights[0].lightColor",1.0f,1.0f,1.0f);
+    // m_shader.SetUniform3f("pointLights[0].lightPos",
+    //     Camera::Instance().GetEyeXPosition() + Camera::Instance().GetViewXDirection(),
+    //     Camera::Instance().GetEyeYPosition() + Camera::Instance().GetViewYDirection(),
+    //     Camera::Instance().GetEyeZPosition() + Camera::Instance().GetViewZDirection());
+    // m_shader.SetUniform1f("pointLights[0].ambientIntensity", 0.5f);
+    // m_shader.SetUniform1f("pointLights[0].specularStrength", 0.5f);
+    // m_shader.SetUniform1f("pointLights[0].constant", 1.0f);
+    // m_shader.SetUniform1f("pointLights[0].linear", 0.09f);
+    // m_shader.SetUniform1f("pointLights[0].quadratic", 0.032f);
+
+    m_shader.SetUniform3f("pointLights[0].lightColor",1.0f,1.0f,1.0f);
+    m_shader.SetUniform3f("pointLights[0].lightDir", -0.5f, -1.0f, -0.5f);
+    m_shader.SetUniform1f("pointLights[0].ambientIntensity", 0.3f);
+    m_shader.SetUniform1f("pointLights[0].specularStrength", 0.1f);
+    m_shader.SetUniform1f("pointLights[0].constant", 1.0f);
+    m_shader.SetUniform1f("pointLights[0].linear", 0.022f);
+    m_shader.SetUniform1f("pointLights[0].quadratic", 0.0019f);
 }
 
 void BlockBuilder::Render(BlocksArray& blocksArray) {
@@ -166,7 +185,8 @@ void BlockBuilder::Render(BlocksArray& blocksArray) {
             for (int z = 0; z < DEPTH; z++) {
                 BlockData block = blocksArray.getBlock(x, y, z);
                 if (block.isVisible) {
-                    glVertexAttribPointer(1, 2, GL_FLOAT, GL_TRUE, sizeof(float)*2, (GLvoid*)(48 * block.blockType * sizeof(GLfloat)));
+                    glVertexAttribPointer(2, 2, GL_FLOAT, GL_TRUE, sizeof(float)*2, (GLvoid*)(48 * block.blockType * sizeof(GLfloat)));
+                    // glVertexAttribPointer(1, 2, GL_FLOAT, GL_TRUE, sizeof(float)*2, (GLvoid*)(48 * block.blockType * sizeof(GLfloat)));
                     Update(block, 1280, 720);
                     glDrawElements(GL_TRIANGLES,
                         m_indices.size(),   // The number of indices, not triangles.

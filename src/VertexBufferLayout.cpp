@@ -105,7 +105,7 @@ void VertexBufferLayout::CreatePositionBufferLayout(unsigned int vcount,unsigned
 
 void VertexBufferLayout::CreateTextureBufferLayout(unsigned int vcount, unsigned int tcount, unsigned int icount, float* vdata, float* tdata, unsigned int* idata ){
         // This layout uses x,y,z, and s,t
-        m_stride = 3;
+        m_stride = 6;
 
         static_assert(sizeof(GLfloat)==sizeof(float),
             "GLFloat and gloat are not the same size on this architecture");
@@ -159,6 +159,9 @@ void VertexBufferLayout::CreateTextureBufferLayout(unsigned int vcount, unsigned
                                                 // 3*sizeof(GL_FLOAT) for example
         );
 
+        glEnableVertexAttribArray(1);
+        glVertexAttribPointer(1,3,GL_FLOAT, GL_FALSE,sizeof(float)*m_stride,(char*)(sizeof(float)*3));
+
         // Adding a new glVertexAttrib here. Make sure to enable it first
         // - Make sure you use a new attribute(i.e. 0 is already used for position data!)
         // - Make sure the correct offset is set (i.e. the starting point of the color data)
@@ -168,8 +171,8 @@ void VertexBufferLayout::CreateTextureBufferLayout(unsigned int vcount, unsigned
         glBufferData(GL_ARRAY_BUFFER, tcount*sizeof(float), tdata, GL_STATIC_DRAW); // TODO: might change to dynamic
 
         // Add two floats for texture coordinates
-        glEnableVertexAttribArray(1);
-        glVertexAttribPointer(1, 2, GL_FLOAT, GL_TRUE, sizeof(float)*2, 0);
+        glEnableVertexAttribArray(2);
+        glVertexAttribPointer(2, 2, GL_FLOAT, GL_TRUE, sizeof(float)*2, 0);
         // glVertexAttribPointer(1, 2, GL_FLOAT, GL_TRUE, sizeof(float)*2, (GLvoid*)(48 * sizeof(GLfloat)));
 
 
