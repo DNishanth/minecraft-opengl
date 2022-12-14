@@ -36,18 +36,22 @@ public:
     BlockBuilder();
     // BlockBuilder destructor
     ~BlockBuilder();
-    // Create a textured quad
-    void MakeTexturedQuad(std::string fileName);
-    // Updates and transformatinos applied to BlockBuilder
+    // Initialize buffers, texture, and shader
+    void InitializeBlockData(std::string atlasFileName);
+    // Updates and transformations applied to BlockBuilder
     void Update(BlockData& blockData, unsigned int screenWidth, unsigned int screenHeight);
     // How to draw the BlockBuilder
     void Render(BlocksArray& BlocksArray);
     // Returns an BlockBuilders transform
     Transform& GetTransform();
+    // Toggle uniform to enable directional light in shader
     void ToggleLighting();
+    // Reload shader while program is running for debugging
     void ReloadShaders();
 private:
+    // Generate texture coordinates for the three face textures of a block and add to texture buffer
     void generateBlockTexture(BlockType blockType, int top, int side, int bottom);
+    // Generate texture coordinates for given texture in atlas
     FaceTexture generateFaceTexture(int faceAtlasIndex);
     // BlockBuilder vertices
     std::vector<GLfloat> m_vertices;
@@ -63,8 +67,9 @@ private:
     Transform m_transform;
     // Store the 'camera' projection
     glm::mat4 m_projectionMatrix;
-    // std::array<std::vector<GLfloat>, NUM_BLOCK_TYPES> blockTextures;
+    // Store texture coordinates of each block type
     std::vector<GLfloat> m_blockTextures;
+    // Flag for enabling directional light in shader
     int lightingEnabled;
 };
 

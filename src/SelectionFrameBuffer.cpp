@@ -50,6 +50,7 @@ void SelectionFrameBuffer::Create(int width, int height) {
     Unbind();
 }
 
+// Render visible blocks into framebuffer
 void SelectionFrameBuffer::Render(BlocksArray& blocksArray, int width, int height) {
     Bind();
     glClearColor(0.0f, 0.0f, 0.0f, 1.f);
@@ -62,6 +63,7 @@ void SelectionFrameBuffer::Render(BlocksArray& blocksArray, int width, int heigh
             for (int z = 0; z < DEPTH; z++) {
                 BlockData block = blocksArray.getBlock(x, y, z);
                 if (block.isVisible) {
+                    // Assign every visible block face a unique color
                     m_shader.SetUniformMatrix4fv("model", block.m_transform.GetTransformMatrix());
                     m_shader.SetUniformMatrix4fv("view", &Camera::Instance().GetWorldToViewmatrix()[0][0]);
                     m_shader.SetUniformMatrix4fv("projection", &m_projectionMatrix[0][0]);
@@ -77,15 +79,13 @@ void SelectionFrameBuffer::Render(BlocksArray& blocksArray, int width, int heigh
                                             // because we are currently bound:
                     }
                 }
-                blockIndex+=6;
+                blockIndex+=6; // Increment block index by 6 to account for blocks not rendered
             }
         }
     }
 }
 
 int SelectionFrameBuffer::ReadPixel(int x, int y) {
-    // TODO: Is flush step needed?
-    // TODO: Check RGBA vs RGB INT vs RGB
     glReadBuffer(GL_COLOR_ATTACHMENT0);
     unsigned char pixelData[4];
     glReadPixels(x, y, 1, 1, GL_RGBA, GL_UNSIGNED_BYTE, pixelData);
@@ -93,7 +93,7 @@ int SelectionFrameBuffer::ReadPixel(int x, int y) {
     int blockIndex =
         pixelData[0] +
         pixelData[1] * 256 +
-        pixelData[2] * 256 * 256;
+        pixelData[2] * 256 * 256; // Convert color back to block index
     return blockIndex;
 }
 

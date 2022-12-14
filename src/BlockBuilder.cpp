@@ -2,6 +2,7 @@
 #include "Camera.hpp"
 #include "Error.hpp"
 
+// Generate textures coordinates for all block types and store in shared buffer
 BlockBuilder::BlockBuilder() {
     generateBlockTexture(Dirt, 242, 242, 242);
     generateBlockTexture(Grass, 240, 243, 242);
@@ -18,6 +19,7 @@ BlockBuilder::BlockBuilder() {
 
 BlockBuilder::~BlockBuilder() {}
 
+// Generate texture coordinates for given texture in atlas
 FaceTexture BlockBuilder::generateFaceTexture(int faceAtlasIndex) {
     int numRows = 16;
 	int numCols = 16;
@@ -40,6 +42,7 @@ FaceTexture BlockBuilder::generateFaceTexture(int faceAtlasIndex) {
     return (FaceTexture) {leftU, rightU, topV, bottomV};
 }
 
+// Generate texture coordinates for the three face textures of a block and add to texture buffer
 void BlockBuilder::generateBlockTexture(BlockType blockType, int topAtlasIndex, int sideAtlasIndex, int bottomAtlasIndex) {
     FaceTexture topFace = generateFaceTexture(topAtlasIndex);
     FaceTexture sideFace = generateFaceTexture(sideAtlasIndex);
@@ -57,10 +60,10 @@ void BlockBuilder::generateBlockTexture(BlockType blockType, int topAtlasIndex, 
 // This could be called in the constructor or
 // otherwise 'explicitly' called this
 // so we create our BlockBuilders at the correct time
-void BlockBuilder::MakeTexturedQuad(std::string fileName) {
+void BlockBuilder::InitializeBlockData(std::string atlasFileName) {
 	m_vertices = {
 		// Front face
-		0.5f,  0.5f,  0.5f, 0.0f, 0.0f, 1.0f,
+		0.5f,  0.5f,  0.5f, 0.0f, 0.0f, 1.0f, // x,y,z and nx,ny,nz
 		-0.5f,  0.5f,  0.5f, 0.0f, 0.0f, 1.0f,
 		-0.5f, -0.5f,  0.5f, 0.0f, 0.0f, 1.0f,
 		0.5f, -0.5f,  0.5f, 0.0f, 0.0f, 1.0f,
@@ -106,8 +109,8 @@ void BlockBuilder::MakeTexturedQuad(std::string fileName) {
 	};
 
 	// Create a buffer and set the stride of information
-	// NOTE: We are leveraging our data structure in order to very cleanly
-	//       get information into and out of our data structure.
+	// Buffer 1 - positions and normals
+	// Buffer 2 - texture coordinates
 	m_vertexBufferLayout.CreateTextureBufferLayout(
         m_vertices.size(), m_blockTextures.size(), m_indices.size(),
         m_vertices.data(), m_blockTextures.data(), m_indices.data()
@@ -115,7 +118,7 @@ void BlockBuilder::MakeTexturedQuad(std::string fileName) {
 
 	// Load our actual texture
 	// We are using the input parameter as our texture to load
-	m_texture.LoadTexture(fileName.c_str());
+	m_texture.LoadTexture(atlasFileName.c_str());
 
 	// Setup shaders
 	std::string vertexShader = m_shader.LoadShader("./shaders/vert.glsl");
@@ -132,14 +135,6 @@ void BlockBuilder::MakeTexturedQuad(std::string fileName) {
 }
 
 void BlockBuilder::Update(BlockData& blockData, unsigned int screenWidth, unsigned int screenHeight) {
-	// m_texture.Unbind();
-	// Make sure we are updating the correct 'buffers'
-
-	// For our BlockBuilder, we apply the texture in the following way
-	// Note that we set the value to 0, because we have bound
-	// our texture to slot 0.
-	// m_shader.SetUniformMatrix1i("u_Texture", 0);
-
     // Here we apply the 'view' matrix which creates perspective.
 	// The first argument is 'field of view'
 	// Then perspective
@@ -159,6 +154,7 @@ void BlockBuilder::Render(BlocksArray& blocksArray) {
 	m_texture.Bind();
 	// Select this BlockBuilders shader to render
 	m_shader.Bind();
+	// Set uniforms for directional light
 	m_shader.SetUniformMatrix1i("lightingEnabled", lightingEnabled);
     m_shader.SetUniform3f("lights[0].lightColor", 1.0f, 1.0f, 1.0f);
     m_shader.SetUniform3f("lights[0].lightDir", -0.5f, -1.0f, -0.5f);
@@ -170,8 +166,9 @@ void BlockBuilder::Render(BlocksArray& blocksArray) {
             for (int z = 0; z < DEPTH; z++) {
                 BlockData block = blocksArray.getBlock(x, y, z);
                 if (block.isVisible) {
+					// Set texture offset in texture buffer based on block type
                     glVertexAttribPointer(2, 2, GL_FLOAT, GL_TRUE, sizeof(float)*2, (GLvoid*)(48 * block.blockType * sizeof(GLfloat)));
-                    Update(block, 1280, 720);
+                    Update(block, 1280, 720); // Apply transforms for each block
                     glDrawElements(GL_TRIANGLES,
                         m_indices.size(),   // The number of indices, not triangles.
                         GL_UNSIGNED_INT,    // Make sure the data type matches
@@ -189,10 +186,12 @@ Transform& BlockBuilder::GetTransform() {
     return m_transform;
 }
 
+// Toggle uniform to enable directional light in shader
 void BlockBuilder::ToggleLighting() {
 	lightingEnabled = !lightingEnabled;
 }
 
+// Reload shader while program is running for debugging
 void BlockBuilder::ReloadShaders() {
 	std::string vertexShader = m_shader.LoadShader("./shaders/vert.glsl");
 	std::string fragmentShader = m_shader.LoadShader("./shaders/frag.glsl");

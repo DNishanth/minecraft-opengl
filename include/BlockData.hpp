@@ -31,14 +31,25 @@ struct BlockData {
 struct BlocksArray {
     BlockData* blocks;
 
+    // Allocate memory for blocks and initialize structs
     BlocksArray() {
         blocks = new BlockData[WIDTH * HEIGHT * DEPTH];
+        for (int x = 0; x < WIDTH; x++) {
+            for (int y = 0; y < HEIGHT; y++) {
+                for (int z = 0; z < DEPTH; z++) {
+                    getBlock(x, y, z).isVisible = false;
+                    getBlock(x, y, z).blockType = Empty;
+                    getBlock(x, y, z).m_transform.Translate(x, y, z);
+                }
+            }
+        }
     }
 
     ~BlocksArray() {
         delete[] blocks;
     }
 
+    // Return true if the block coordinates are within the WIDTH, HEIGHT, and DEPTH bounds
     bool isValidBlock(int x, int y, int z) {
         return x >= 0 && x < WIDTH && y >= 0 && y < HEIGHT && z >= 0 && z < DEPTH;
     }

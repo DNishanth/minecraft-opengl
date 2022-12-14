@@ -82,7 +82,7 @@ SDLGraphicsProgram::SDLGraphicsProgram(int w, int h):m_screenWidth(w),m_screenHe
 	// SDL_LogSetAllPriority(SDL_LOG_PRIORITY_WARN); // Uncomment to enable extra debug support!
 	GetOpenGLVersionInfo();
 
-    builder.MakeTexturedQuad("");
+    builder.InitializeBlockData("texture_atlas_original.png");
     // crosshair.MakeTexturedQuad(m_screenWidth, m_screenHeight);
     InitWorld();
     activeBlock = Brick;
@@ -118,47 +118,32 @@ bool SDLGraphicsProgram::InitGL() {
 	return success;
 }
 
-
+// Initialize world terrain
 void SDLGraphicsProgram::InitWorld() {
-    for (int x = 0; x < WIDTH; x++) {
-        for (int y = 0; y < HEIGHT; y++) {
-            for (int z = 0; z < DEPTH; z++) {
-                blocksArray.getBlock(x, y, z).isVisible = false;
-                blocksArray.getBlock(x, y, z).blockType = Empty;
-                blocksArray.getBlock(x, y, z).m_transform.Translate(x, y, z);
-            }
-        }
-    }
-
     Image heightMap("terrain_height.ppm");
     heightMap.LoadPPM(true);
     int height = 0;
     for (int x = 0; x < WIDTH; x++) {
         for (int z = 0; z < DEPTH; z++) {
-            // height = heightMap.GetPixelR(x, z);
             height = ((float) heightMap.GetPixelR(x, z) / 255.0f) * HEIGHT;
-            // height = heightMap.GetPixelR(x, z) / 3;
             if (height < HEIGHT) {
                 blocksArray.getBlock(x, height, z).isVisible = true;
+                // Set block at heightmap value to snow or grass based on elevation
                 if (height > 36) {
                     blocksArray.getBlock(x, height, z).blockType = Snow;
                 }
                 else {
                     blocksArray.getBlock(x, height, z).blockType = Grass;
                 }
+                // Set column of blocks below heightmap value to dirt
                 for (int y = 0; y < height; y++) {
                     blocksArray.getBlock(x, y, z).isVisible = true;
                     blocksArray.getBlock(x, y, z).blockType = Dirt;
                 }
             }
-            else {
-                std::cout << "Too high" << std::endl;
-            }
         }
     }
 
-
-    // TODO: call from block array/simplify
     // Hide all surrounded blocks
     for (int x = 0; x < WIDTH; x++) {
         for (int y = 0; y < HEIGHT; y++) {
@@ -168,9 +153,6 @@ void SDLGraphicsProgram::InitWorld() {
                     blocksArray.isCoveredBlock(x, y - 1, z) && blocksArray.isCoveredBlock(x, y + 1, z) &&
                     blocksArray.isCoveredBlock(x, y, z - 1) && blocksArray.isCoveredBlock(x, y, z + 1)) {
                     currBlock.isVisible = false;
-                    // currBlock.blockType = Mossystone;
-                    // std::cout << "hidden block" << std::endl;
-                    // std::cout << "x: " << x << " y: " << y << " z: " << z << std::endl;
                 }
             }
         }
@@ -225,26 +207,23 @@ void SDLGraphicsProgram::Loop() {
                 int mouseX = e.motion.x;
                 int mouseY = e.motion.y;
                 // std::cout << "Mouse X: " << mouseX << " Y: " << mouseY << std::endl;
-                // std::cout << "Mouse X: " << e.motion.xrel << " Y: " << e.motion.yrel << std::endl;
-                // Camera::Instance().MouseLook(e.motion.xrel, e.motion.yrel);
                 Camera::Instance().MouseLook(mouseX, mouseY);
             }
             if (e.type == SDL_MOUSEBUTTONDOWN) {
                 int mouseX = e.button.x;
                 int mouseY = e.motion.y;
+                    // std::cout << "Mouse X: " << mouseX << " Y: " << mouseY << std::endl;
                 if (e.button.button == SDL_BUTTON_LEFT) {
                     MakeSelection(mouseX, mouseY, SDL_BUTTON_LEFT);
-                    // std::cout << "Mouse X: " << mouseX << " Y: " << mouseY << std::endl;
                 }
                 else if (e.button.button == SDL_BUTTON_RIGHT) {
                     MakeSelection(mouseX, mouseY, SDL_BUTTON_RIGHT);
-                    // std::cout << "Mouse X: " << mouseX << " Y: " << mouseY << std::endl;
                 }
             }
 			if (e.type == SDL_KEYDOWN) {
 				switch (e.key.keysym.sym) {
 					case SDLK_q:
-						// quit = true;
+						quit = true;
 						break;
 					case SDLK_i:
 						if (showWireframe) {
@@ -341,7 +320,8 @@ void SDLGraphicsProgram::Loop() {
     SDL_StopTextInput();
 }
 
-
+// Get selected block from selection frame buffer
+// Handle block destroy or placement
 void SDLGraphicsProgram::MakeSelection(int mouseX, int mouseY, int clickType) {
     // Render blocks in selection framebuffer
     selectionBuffer.Render(blocksArray, m_screenWidth, m_screenHeight);
