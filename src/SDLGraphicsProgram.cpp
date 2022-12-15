@@ -42,7 +42,6 @@ SDLGraphicsProgram::SDLGraphicsProgram(int w, int h):m_screenWidth(w),m_screenHe
                                 m_screenWidth,
                                 m_screenHeight,
                                 SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN );
-        // SDL_SetRelativeMouseMode(SDL_bool::SDL_TRUE);
 
 		// Check if Window did not create.
 		if (m_window == NULL ) {
@@ -81,9 +80,10 @@ SDLGraphicsProgram::SDLGraphicsProgram(int w, int h):m_screenWidth(w),m_screenHe
 
 	// SDL_LogSetAllPriority(SDL_LOG_PRIORITY_WARN); // Uncomment to enable extra debug support!
 	GetOpenGLVersionInfo();
+    SDL_SetRelativeMouseMode(SDL_bool::SDL_TRUE);
 
     builder.InitializeBlockData("texture_atlas_original.png");
-    // crosshair.MakeTexturedQuad(m_screenWidth, m_screenHeight);
+    crosshair.MakeTexturedQuad(m_screenWidth, m_screenHeight);
     InitWorld();
     activeBlock = Brick;
 
@@ -149,9 +149,7 @@ void SDLGraphicsProgram::InitWorld() {
         for (int y = 0; y < HEIGHT; y++) {
             for (int z = 0; z < DEPTH; z++) {
                 BlockData& currBlock = blocksArray.getBlock(x, y, z);
-                if (blocksArray.isCoveredBlock(x - 1, y, z) && blocksArray.isCoveredBlock(x + 1, y, z) &&
-                    blocksArray.isCoveredBlock(x, y - 1, z) && blocksArray.isCoveredBlock(x, y + 1, z) &&
-                    blocksArray.isCoveredBlock(x, y, z - 1) && blocksArray.isCoveredBlock(x, y, z + 1)) {
+                if (blocksArray.isSurrounded(x, y, z)) {
                     currBlock.isVisible = false;
                 }
             }
@@ -177,7 +175,7 @@ void SDLGraphicsProgram::Render() {
     // and we have to do this every frame!
   	glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
 
-    // crosshair.Render(); // Render crosshair
+    crosshair.Render(); // Render crosshair
     builder.Render(blocksArray); // Render blocks
 }
 
@@ -214,10 +212,12 @@ void SDLGraphicsProgram::Loop() {
                 int mouseY = e.motion.y;
                     // std::cout << "Mouse X: " << mouseX << " Y: " << mouseY << std::endl;
                 if (e.button.button == SDL_BUTTON_LEFT) {
-                    MakeSelection(mouseX, mouseY, SDL_BUTTON_LEFT);
+                    MakeSelection(m_screenWidth/2, m_screenHeight/2, SDL_BUTTON_LEFT);
+                    // MakeSelection(mouseX, mouseY, SDL_BUTTON_LEFT);
                 }
                 else if (e.button.button == SDL_BUTTON_RIGHT) {
-                    MakeSelection(mouseX, mouseY, SDL_BUTTON_RIGHT);
+                    MakeSelection(m_screenWidth/2, m_screenHeight/2, SDL_BUTTON_RIGHT);
+                    // MakeSelection(mouseX, mouseY, SDL_BUTTON_RIGHT);
                 }
             }
 			if (e.type == SDL_KEYDOWN) {
@@ -250,7 +250,7 @@ void SDLGraphicsProgram::Loop() {
                     case SDLK_SPACE:
                         Camera::Instance().MoveUp(cameraSpeed, blocksArray);
                         break;
-                    case SDLK_LALT:
+                    case SDLK_LCTRL:
                         Camera::Instance().MoveDown(cameraSpeed, blocksArray);
                         break;
                     case SDLK_p:

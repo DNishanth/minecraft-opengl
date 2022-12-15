@@ -140,7 +140,7 @@ void BlockBuilder::Update(BlockData& blockData, unsigned int screenWidth, unsign
 	// Then perspective
 	// Then the near and far clipping plane.
 	// Note I cannot see anything closer than 0.1f units from the screen.
-	m_projectionMatrix = glm::perspective(45.0f, (float)screenWidth/(float)screenHeight, 0.1f, 100.0f);
+	m_projectionMatrix = glm::perspective(45.0f, (float)screenWidth/(float)screenHeight, 0.1f, 150.0f);
 	// Set the uniforms in our current shader
 	m_shader.SetUniformMatrix4fv("model", blockData.m_transform.GetTransformMatrix());
     m_shader.SetUniformMatrix4fv("view", &Camera::Instance().GetWorldToViewmatrix()[0][0]);

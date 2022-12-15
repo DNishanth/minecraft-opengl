@@ -11,16 +11,8 @@ void Crosshair::MakeTexturedQuad(float screenWidth, float screenHeight) {
         0.01f, 0.0f, 0.0f,
 		0.0f, -0.01f, 0.0f,
         0.0f, 0.01f, 0.0f,
-		// 0.0f, screenHeight/2.0f, 0.0f,
-        // screenWidth, screenHeight/2.0f, 0.0f
     };
-	// m_vertices = {
-	// 	screenWidth/2.0f, 0.0f, 0.0f,
-    //     screenWidth/2.0f, screenWidth, 0.0f,
-	// 	0.0f, screenHeight/2.0f, 0.0f,
-    //     screenWidth, screenHeight/2.0f, 0.0f
-    // };
-
+	
 	m_indices = {
 		0, 1, 2, 3
 	};
@@ -39,6 +31,7 @@ void Crosshair::MakeTexturedQuad(float screenWidth, float screenHeight) {
 
     // m_vertexBufferLayout.Bind();
 	// m_shader.Bind();
+	glLineWidth(2.0f);
 }
 
 // void Crosshair::Update(BlockData& blockData, unsigned int screenWidth, unsigned int screenHeight) {}

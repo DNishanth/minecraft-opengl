@@ -58,15 +58,14 @@ struct BlocksArray {
         return blocks[z + y*DEPTH + x*HEIGHT*DEPTH];
     }
 
-    // TODO: rename to isSolidBlock?
-    bool isCoveredBlock(int x, int y, int z) {
+    bool isSolidBlock(int x, int y, int z) {
         return isValidBlock(x, y, z) && getBlock(x, y, z).blockType != Empty;
     }
 
     bool isSurrounded(int x, int y, int z) {
-        return isCoveredBlock(x - 1, y, z) && isCoveredBlock(x + 1, y, z) &&
-                isCoveredBlock(x, y - 1, z) && isCoveredBlock(x, y + 1, z) &&
-                isCoveredBlock(x, y, z - 1) && isCoveredBlock(x, y, z + 1);
+        return isSolidBlock(x - 1, y, z) && isSolidBlock(x + 1, y, z) &&
+                isSolidBlock(x, y - 1, z) && isSolidBlock(x, y + 1, z) &&
+                isSolidBlock(x, y, z - 1) && isSolidBlock(x, y, z + 1);
     }
 
     void hideBlockIfSurrounded(int x, int y, int z) {
